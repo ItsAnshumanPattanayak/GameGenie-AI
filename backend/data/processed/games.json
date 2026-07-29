@@ -1,0 +1,685 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "statistics": {
+      "input_records": 23,
+      "output_records": 21,
+      "skipped_records": 1,
+      "repaired_records": 2,
+      "duplicate_records": 1
+    }
+  },
+  "games": [
+    {
+      "title": "Aurora Drift",
+      "normalized_title": "aurora drift",
+      "slug": "aurora-drift",
+      "description": "Pilot a solar skiff through shifting ice rings and quiet orbital ruins.",
+      "genres": [
+        "Racing",
+        "Exploration"
+      ],
+      "platforms": [
+        "PC",
+        "PlayStation 5"
+      ],
+      "developer": "Northlight Works",
+      "publisher": "Northlight Works",
+      "release_date": "2024-02-16",
+      "release_year": 2024,
+      "rating": 4.5,
+      "rating_count": 840,
+      "popularity": 88.0,
+      "tags": [
+        "space",
+        "atmospheric",
+        "vehicles"
+      ],
+      "multiplayer": true,
+      "online_multiplayer": true,
+      "single_player": true,
+      "price": "29.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "aurora-drift",
+      "id": "sample-aurora-drift"
+    },
+    {
+      "title": "Brass & Bloom",
+      "normalized_title": "brass bloom",
+      "slug": "brass-bloom",
+      "description": "Restore a clockwork greenhouse by solving mechanical plant puzzles.",
+      "genres": [
+        "Puzzle",
+        "Simulation",
+        "cozy"
+      ],
+      "platforms": [
+        "PC",
+        "Nintendo Switch"
+      ],
+      "developer": "Copper Finch",
+      "publisher": "Mossbell",
+      "release_date": "2022-09-08",
+      "release_year": 2022,
+      "rating": 4.2,
+      "tags": [
+        "cozy",
+        "crafting",
+        "gardening"
+      ],
+      "single_player": true,
+      "price": "14.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "brass-and-bloom",
+      "id": "sample-brass-and-bloom"
+    },
+    {
+      "title": "Citadel Zero",
+      "normalized_title": "citadel zero",
+      "slug": "citadel-zero",
+      "description": "Coordinate a squad defending a modular fortress on a frozen moon.",
+      "genres": [
+        "Strategy",
+        "RPG"
+      ],
+      "platforms": [
+        "PC",
+        "Xbox Series X|S"
+      ],
+      "developer": "Vector Anvil",
+      "publisher": "Vector Anvil",
+      "release_date": "2025-01-21",
+      "release_year": 2025,
+      "rating": 4.7,
+      "tags": [
+        "tactical",
+        "squad",
+        "sci-fi"
+      ],
+      "multiplayer": false,
+      "single_player": true,
+      "price": "49.99",
+      "currency": "USD",
+      "price_category": "premium",
+      "source": "sample",
+      "source_id": "citadel-zero",
+      "id": "sample-citadel-zero"
+    },
+    {
+      "title": "Cloud Gardeners",
+      "normalized_title": "cloud gardeners",
+      "slug": "cloud-gardeners",
+      "description": "Grow floating habitats and trade seeds with neighboring sky villages.",
+      "genres": [
+        "Simulation",
+        "Casual"
+      ],
+      "platforms": [
+        "PC",
+        "Nintendo Switch"
+      ],
+      "developer": "Soft Current",
+      "publisher": "Mossbell",
+      "release_date": "2021-05-12",
+      "release_year": 2021,
+      "rating": 4.0,
+      "tags": [
+        "cozy",
+        "building",
+        "farming"
+      ],
+      "multiplayer": true,
+      "single_player": true,
+      "price": "0",
+      "currency": "USD",
+      "price_category": "free",
+      "source": "sample",
+      "source_id": "cloud-gardeners",
+      "id": "sample-cloud-gardeners"
+    },
+    {
+      "title": "Deep Signal",
+      "normalized_title": "deep signal",
+      "slug": "deep-signal",
+      "description": "Decode transmissions while exploring a submarine trench in limited light.",
+      "genres": [
+        "Adventure",
+        "Horror"
+      ],
+      "platforms": [
+        "PC",
+        "PlayStation 4",
+        "Xbox One"
+      ],
+      "developer": "Abyssal Audio",
+      "publisher": "Night Buoy",
+      "release_date": "2020-10-30",
+      "release_year": 2020,
+      "rating": 4.3,
+      "tags": [
+        "mystery",
+        "underwater",
+        "narrative"
+      ],
+      "single_player": true,
+      "price": "24.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "deep-signal",
+      "id": "sample-deep-signal"
+    },
+    {
+      "title": "Ember League",
+      "normalized_title": "ember league",
+      "slug": "ember-league",
+      "description": "Fast arena matches combine elemental abilities with precise team movement.",
+      "genres": [
+        "Action",
+        "Sports"
+      ],
+      "platforms": [
+        "PC",
+        "PlayStation 5",
+        "Xbox Series X|S"
+      ],
+      "developer": "Red Kite Studio",
+      "publisher": "Brightforge",
+      "release_date": "2025-06-03",
+      "release_year": 2025,
+      "rating": 4.1,
+      "tags": [
+        "competitive",
+        "team-based",
+        "fantasy"
+      ],
+      "multiplayer": true,
+      "online_multiplayer": true,
+      "single_player": false,
+      "price": "0",
+      "currency": "USD",
+      "price_category": "free",
+      "source": "sample",
+      "source_id": "ember-league",
+      "id": "sample-ember-league"
+    },
+    {
+      "title": "Fable Archive",
+      "normalized_title": "fable archive",
+      "slug": "fable-archive",
+      "description": "Catalogue magical stories and enter each tale to repair its ending.",
+      "genres": [
+        "RPG",
+        "Adventure"
+      ],
+      "platforms": [
+        "PC",
+        "macOS"
+      ],
+      "developer": "Paper Lantern",
+      "publisher": "Paper Lantern",
+      "release_date": "2019-11-14",
+      "release_year": 2019,
+      "rating": 4.6,
+      "tags": [
+        "story-rich",
+        "choices",
+        "magic"
+      ],
+      "single_player": true,
+      "price": "34.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "fable-archive",
+      "id": "sample-fable-archive"
+    },
+    {
+      "title": "Granite Hollow",
+      "normalized_title": "granite hollow",
+      "slug": "granite-hollow",
+      "description": "Build a mountain railway and keep isolated settlements supplied through winter.",
+      "genres": [
+        "Simulation",
+        "Strategy"
+      ],
+      "platforms": [
+        "PC",
+        "Linux"
+      ],
+      "developer": "Switchback Labs",
+      "publisher": "Iron Map",
+      "release_date": "2023-03-02",
+      "release_year": 2023,
+      "rating": 3.9,
+      "tags": [
+        "management",
+        "trains",
+        "survival"
+      ],
+      "single_player": true,
+      "price": "19.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "granite-hollow",
+      "id": "sample-granite-hollow"
+    },
+    {
+      "title": "Harbor Hex",
+      "normalized_title": "harbor hex",
+      "slug": "harbor-hex",
+      "description": "Place enchanted tiles to guide merchant ships through changing tides.",
+      "genres": [
+        "Puzzle",
+        "Strategy"
+      ],
+      "platforms": [
+        "Android",
+        "iOS"
+      ],
+      "developer": "Pocket Meridian",
+      "publisher": "Pocket Meridian",
+      "release_date": "2022-01-27",
+      "release_year": 2022,
+      "rating": 3.8,
+      "tags": [
+        "turn-based",
+        "mobile",
+        "relaxing"
+      ],
+      "single_player": true,
+      "price": "4.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "harbor-hex",
+      "id": "sample-harbor-hex"
+    },
+    {
+      "title": "Iron Comet",
+      "normalized_title": "iron comet",
+      "slug": "iron-comet",
+      "description": "Salvage derelict ships and outmaneuver rivals across a compact star system.",
+      "genres": [
+        "Action",
+        "Simulation"
+      ],
+      "platforms": [
+        "PC",
+        "Xbox One"
+      ],
+      "developer": "Vector Anvil",
+      "publisher": "Brightforge",
+      "release_date": "2018-07-19",
+      "release_year": 2018,
+      "rating": 4.0,
+      "tags": [
+        "space",
+        "sandbox",
+        "combat"
+      ],
+      "multiplayer": true,
+      "online_multiplayer": true,
+      "single_player": true,
+      "price": "39.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "iron-comet",
+      "id": "sample-iron-comet"
+    },
+    {
+      "title": "Jungle Frequency",
+      "normalized_title": "jungle frequency",
+      "slug": "jungle-frequency",
+      "description": "Use a field radio to map wildlife calls and uncover a lost expedition route.",
+      "genres": [
+        "Adventure",
+        "Exploration"
+      ],
+      "platforms": [
+        "PC",
+        "Nintendo Switch"
+      ],
+      "developer": "Green Static",
+      "publisher": "Night Buoy",
+      "release_date": "2024-08-09",
+      "release_year": 2024,
+      "rating": 4.4,
+      "tags": [
+        "nature",
+        "mystery",
+        "audio"
+      ],
+      "single_player": true,
+      "price": "19.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "jungle-frequency",
+      "id": "sample-jungle-frequency"
+    },
+    {
+      "title": "Kinetic Kitchen",
+      "normalized_title": "kinetic kitchen",
+      "slug": "kinetic-kitchen",
+      "description": "Cook improbable meals in kitchens where gravity changes every round.",
+      "genres": [
+        "Casual",
+        "Action"
+      ],
+      "platforms": [
+        "PC",
+        "PlayStation 5",
+        "Xbox Series X|S"
+      ],
+      "developer": "Spoon Rocket",
+      "publisher": "Mossbell",
+      "release_date": "2023-12-01",
+      "release_year": 2023,
+      "rating": 4.1,
+      "tags": [
+        "co-op",
+        "physics",
+        "comedy"
+      ],
+      "multiplayer": true,
+      "online_multiplayer": true,
+      "single_player": true,
+      "price": "14.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "kinetic-kitchen",
+      "id": "sample-kinetic-kitchen"
+    },
+    {
+      "title": "Lumen Trail",
+      "normalized_title": "lumen trail",
+      "slug": "lumen-trail",
+      "description": "Trace paths of light through hand-painted caves to awaken an ancient forest.",
+      "genres": [
+        "Puzzle",
+        "Adventure"
+      ],
+      "platforms": [
+        "PC",
+        "macOS"
+      ],
+      "developer": "Soft Current",
+      "publisher": "Soft Current",
+      "release_date": "2020-04-17",
+      "release_year": 2020,
+      "rating": 4.5,
+      "tags": [
+        "relaxing",
+        "hand-painted",
+        "nature"
+      ],
+      "single_player": true,
+      "price": "9.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "lumen-trail",
+      "id": "sample-lumen-trail"
+    },
+    {
+      "title": "Metro Menders",
+      "normalized_title": "metro menders",
+      "slug": "metro-menders",
+      "description": "Repair a busy underground network while passengers create unexpected challenges.",
+      "genres": [
+        "Simulation",
+        "Puzzle"
+      ],
+      "platforms": [
+        "PC",
+        "Linux"
+      ],
+      "developer": "Switchback Labs",
+      "publisher": "Iron Map",
+      "release_date": "2021-08-24",
+      "release_year": 2021,
+      "rating": 3.7,
+      "tags": [
+        "management",
+        "transport",
+        "time-management"
+      ],
+      "single_player": true,
+      "price": "12.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "metro-menders",
+      "id": "sample-metro-menders"
+    },
+    {
+      "title": "Neon Orchard",
+      "normalized_title": "neon orchard",
+      "slug": "neon-orchard",
+      "description": "Defend a bioluminescent farm from robots using plants with unusual abilities.",
+      "genres": [
+        "Strategy",
+        "Action"
+      ],
+      "platforms": [
+        "PC",
+        "PlayStation 4"
+      ],
+      "developer": "Copper Finch",
+      "publisher": "Brightforge",
+      "release_date": "2019-06-06",
+      "release_year": 2019,
+      "rating": 4.0,
+      "tags": [
+        "tower-defense",
+        "plants",
+        "robots"
+      ],
+      "single_player": true,
+      "price": "17.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "neon-orchard",
+      "id": "sample-neon-orchard"
+    },
+    {
+      "title": "Opal Circuit",
+      "normalized_title": "opal circuit",
+      "slug": "opal-circuit",
+      "description": "Race customizable hover bikes through crystalline city courses.",
+      "genres": [
+        "Racing"
+      ],
+      "platforms": [
+        "PC",
+        "PlayStation 5",
+        "Xbox Series X|S"
+      ],
+      "developer": "Northlight Works",
+      "publisher": "Brightforge",
+      "release_date": "2026-02-20",
+      "release_year": 2026,
+      "rating": 4.3,
+      "tags": [
+        "futuristic",
+        "customization",
+        "arcade"
+      ],
+      "multiplayer": true,
+      "online_multiplayer": true,
+      "single_player": true,
+      "price": "44.99",
+      "currency": "USD",
+      "price_category": "premium",
+      "source": "sample",
+      "source_id": "opal-circuit",
+      "id": "sample-opal-circuit"
+    },
+    {
+      "title": "Paper Titans",
+      "normalized_title": "paper titans",
+      "slug": "paper-titans",
+      "description": "Fold creatures into new forms during turn-based tabletop battles.",
+      "genres": [
+        "RPG",
+        "Strategy"
+      ],
+      "platforms": [
+        "Nintendo Switch",
+        "iOS"
+      ],
+      "developer": "Paper Lantern",
+      "publisher": "Mossbell",
+      "release_date": "2023-04-11",
+      "release_year": 2023,
+      "rating": 4.2,
+      "tags": [
+        "turn-based",
+        "crafting",
+        "family"
+      ],
+      "multiplayer": true,
+      "single_player": true,
+      "price": "19.99",
+      "currency": "USD",
+      "price_category": "mid-range",
+      "source": "sample",
+      "source_id": "paper-titans",
+      "id": "sample-paper-titans"
+    },
+    {
+      "title": "Quiet Constellation",
+      "normalized_title": "quiet constellation",
+      "slug": "quiet-constellation",
+      "description": "Connect stars to compose ambient music and reveal small celestial stories.",
+      "genres": [
+        "Casual",
+        "Music"
+      ],
+      "platforms": [
+        "Android",
+        "iOS",
+        "PC"
+      ],
+      "developer": "Abyssal Audio",
+      "publisher": "Pocket Meridian",
+      "release_date": "2022-11-05",
+      "release_year": 2022,
+      "rating": 4.6,
+      "tags": [
+        "music",
+        "relaxing",
+        "story"
+      ],
+      "single_player": true,
+      "price": "6.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "quiet-constellation",
+      "id": "sample-quiet-constellation"
+    },
+    {
+      "title": "Riverbound",
+      "normalized_title": "riverbound",
+      "slug": "riverbound",
+      "description": "Guide a trading vessel through branching waterways and changing seasons.",
+      "genres": [
+        "Simulation",
+        "Exploration"
+      ],
+      "platforms": [
+        "PC",
+        "Linux",
+        "macOS"
+      ],
+      "developer": "Green Static",
+      "publisher": "Iron Map",
+      "release_date": "2017-09-13",
+      "release_year": 2017,
+      "rating": 3.9,
+      "tags": [
+        "trading",
+        "boats",
+        "procedural"
+      ],
+      "single_player": true,
+      "price": "9.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "riverbound",
+      "id": "sample-riverbound"
+    },
+    {
+      "title": "Starling Protocol",
+      "normalized_title": "starling protocol",
+      "slug": "starling-protocol",
+      "description": "Infiltrate corporate stations using stealth tools and social engineering.",
+      "genres": [
+        "Action",
+        "RPG"
+      ],
+      "platforms": [
+        "PC",
+        "PlayStation 5"
+      ],
+      "developer": "Red Kite Studio",
+      "publisher": "Night Buoy",
+      "release_date": "2024-11-22",
+      "release_year": 2024,
+      "rating": 4.8,
+      "tags": [
+        "stealth",
+        "cyberpunk",
+        "choices"
+      ],
+      "single_player": true,
+      "price": "59.99",
+      "currency": "USD",
+      "price_category": "premium",
+      "source": "sample",
+      "source_id": "starling-protocol",
+      "id": "sample-starling-protocol"
+    },
+    {
+      "title": "Tideglass",
+      "normalized_title": "tideglass",
+      "slug": "tideglass",
+      "description": "Explore memories preserved inside glass objects washed onto a remote beach.",
+      "genres": [
+        "Adventure"
+      ],
+      "platforms": [
+        "PC",
+        "Nintendo Switch"
+      ],
+      "developer": "Paper Lantern",
+      "publisher": "Paper Lantern",
+      "release_date": "2020-02-29",
+      "release_year": 2020,
+      "rating": 4.4,
+      "tags": [
+        "narrative",
+        "mystery",
+        "short"
+      ],
+      "single_player": true,
+      "price": "11.99",
+      "currency": "USD",
+      "price_category": "budget",
+      "source": "sample",
+      "source_id": "tideglass",
+      "id": "sample-tideglass"
+    }
+  ]
+}
