@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import facets, games, health
+from app.api.routes import facets, games, health, search
 from app.core.config import Settings, get_settings
 from app.core.exceptions import AppError, register_exception_handlers
 from app.core.logging import configure_logging
@@ -68,6 +68,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(health.router)
     application.include_router(games.router, prefix=app_settings.api_prefix)
     application.include_router(facets.router, prefix=app_settings.api_prefix)
+    application.include_router(search.router, prefix=app_settings.api_prefix)
     register_exception_handlers(application)
     return application
 

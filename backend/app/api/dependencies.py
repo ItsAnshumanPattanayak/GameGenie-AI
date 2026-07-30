@@ -2,6 +2,7 @@
 
 from fastapi import Request
 
+from app.ai.preference_parser import KeywordPreferenceParser
 from app.core.exceptions import CatalogueInitializationError
 from app.services.game_service import GameService
 
@@ -11,3 +12,12 @@ def get_game_service(request: Request) -> GameService:
     if service is None:
         raise CatalogueInitializationError()
     return service
+
+
+def get_preference_parser(request: Request) -> KeywordPreferenceParser:
+    service = get_game_service(request)
+    return KeywordPreferenceParser(
+        known_genres=(item.name for item in service.genres()),
+        known_platforms=(item.name for item in service.platforms()),
+        known_tags=(item.name for item in service.tags()),
+    )
