@@ -1,18 +1,20 @@
-"""Preference parsing contracts for future natural-language processing."""
+"""Backward-compatible preference parser facade."""
 
-from dataclasses import dataclass, field
 from typing import Protocol
 
+from app.ai.preference_extractor import PreferenceExtractor
+from app.schemas.ai import ExtractedPreferences
 
-@dataclass(frozen=True)
-class ParsedPreferences:
-    genres: tuple[str, ...] = field(default_factory=tuple)
-    platforms: tuple[str, ...] = field(default_factory=tuple)
-    tags: tuple[str, ...] = field(default_factory=tuple)
-    free_text: str = ""
+ParsedPreferences = ExtractedPreferences
 
 
 class PreferenceParser(Protocol):
+    def parse(self, text: str) -> ParsedPreferences: ...
+
+
+class RuleBasedPreferenceParser:
+    def __init__(self) -> None:
+        self._extractor = PreferenceExtractor()
+
     def parse(self, text: str) -> ParsedPreferences:
-        """Convert natural language into normalized catalogue preferences."""
-        ...
+        return self._extractor.extract(text)

@@ -21,6 +21,10 @@ class GameService:
     def count(self) -> int:
         return len(self._games)
 
+    def all(self) -> tuple[GameResponse, ...]:
+        """Return the immutable catalogue for bulk AI scoring without N+1 lookups."""
+        return self._games
+
     def get(self, game_id: str) -> GameResponse:
         try:
             return self._by_id[game_id]

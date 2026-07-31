@@ -1,6 +1,6 @@
 # GameGenie AI
 
-GameGenie AI currently provides the Phase 1 FastAPI foundation and Phase 2 local catalogue pipeline. The repository is the `GameGenie-AI` child within the parent project folder; all commands below start at this repository root.
+GameGenie AI provides the FastAPI/catalogue foundation plus Sprint 2 prompt interpretation, semantic recommendation, explainable hybrid ranking, and space-shooter configuration generation. The repository is the `GameGenie-AI` child within the parent project folder; all commands below start at this repository root.
 
 ## Backend setup
 
@@ -33,6 +33,9 @@ The API includes:
 - `GET /api/games/search?q=star` — deterministic ranked text search with filters.
 - `GET /api/games/{game_id}` — one game or a standardized 404.
 - `GET /api/genres` and `GET /api/platforms` — normalized facets with counts.
+- `POST /api/search/interpret` — normalize a prompt and extract typed preferences, warnings, and confidence.
+- `POST /api/search/recommend` — return filtered, ranked, scored, and explained catalogue matches.
+- `POST /api/generator/interpret` — select the supported template and return a validated game configuration.
 
 Examples:
 
@@ -60,5 +63,18 @@ ruff format --check .
 mypy app tests
 ```
 
-The `app.ai` package defines typed contracts for preference parsing, similarity, orchestration, and explanations. The full TF-IDF/cosine-similarity recommendation engine and public recommendation endpoints intentionally remain Phase 3 work.
+Build production embedding artifacts after the public model is available locally:
 
+```powershell
+cd backend
+python -m scripts.build_embeddings --batch-size 32
+```
+
+AI documentation:
+
+- [Architecture and taxonomy](docs/ai-architecture.md)
+- [Recommendation engine](docs/recommendation-engine.md)
+- [Game-generation AI](docs/game-generation-ai.md)
+- [API contract](docs/api-contract.md)
+- [Recommendation evaluation](docs/recommendation-evaluation.md)
+- [Sprint 2 AI progress](docs/sprint-2-ai-progress.md)
