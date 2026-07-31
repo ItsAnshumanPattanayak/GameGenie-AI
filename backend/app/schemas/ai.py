@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class AIWarning(BaseModel):
@@ -33,6 +33,7 @@ class ExtractedPreferences(BaseModel):
     genres: tuple[str, ...] = ()
     platforms: tuple[str, ...] = ()
     modes: tuple[str, ...] = ()
+    tags: tuple[str, ...] = ()
     themes: tuple[str, ...] = ()
     moods: tuple[str, ...] = ()
     visual_styles: tuple[str, ...] = ()
@@ -45,14 +46,24 @@ class ExtractedPreferences(BaseModel):
     warnings: tuple[AIWarning, ...] = ()
     matched_terms: tuple[MatchedTerm, ...] = ()
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    free_text: str = ""
 
 
 class InterpretRequest(BaseModel):
-    prompt: str | None = Field(default=None, max_length=2000)
+    prompt: str | None = Field(max_length=2000)
+    query: str | None = Field(default=None, min_length=3, max_length=500)
+
+    @model_validator(mode="before")
+    @classmethod
+    def accept_legacy_query(cls, value: Any) -> Any:
+        if isinstance(value, dict) and "prompt" not in value and "query" in value:
+            return {**value, "prompt": value["query"]}
+        return value
 
 
 class InterpretationResponse(BaseModel):
     success: bool = True
+    query: str | None = None
     prompt: NormalizedPrompt
     preferences: ExtractedPreferences
 

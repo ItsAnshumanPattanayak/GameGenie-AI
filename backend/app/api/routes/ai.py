@@ -22,7 +22,11 @@ _generator = GameConfigurationGenerator(_normalizer)
 @router.post("/search/interpret", response_model=InterpretationResponse)
 def interpret(request: InterpretRequest) -> InterpretationResponse:
     prompt = _normalizer.normalize(request.prompt)
-    return InterpretationResponse(prompt=prompt, preferences=_extractor.extract_normalized(prompt))
+    return InterpretationResponse(
+        query=request.query or request.prompt,
+        prompt=prompt,
+        preferences=_extractor.extract_normalized(prompt),
+    )
 
 
 @router.post("/search/recommend", response_model=RecommendationResponse)

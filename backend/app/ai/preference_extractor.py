@@ -57,11 +57,16 @@ class PreferenceExtractor:
         warnings = self._conflicts(by_category, text, player_count)
         confidence = self._confidence(normalized, by_category, warnings)
         hard_filters = self._hard_filters(text, by_category)
+        legacy_tags = _ordered_unique(by_category["themes"], "themes")
+        legacy_tags += _ordered_unique(by_category["moods"], "moods")
+        legacy_tags += _ordered_unique(by_category["modes"], "modes")
+        legacy_tags += _ordered_unique(by_category["visual_styles"], "visual_styles")
 
         return ExtractedPreferences(
             genres=_ordered_unique(by_category["genres"], "genres"),
             platforms=_ordered_unique(by_category["platforms"], "platforms"),
             modes=_ordered_unique(by_category["modes"], "modes"),
+            tags=legacy_tags,
             themes=_ordered_unique(by_category["themes"], "themes"),
             moods=_ordered_unique(by_category["moods"], "moods"),
             visual_styles=_ordered_unique(by_category["visual_styles"], "visual_styles"),
@@ -74,6 +79,7 @@ class PreferenceExtractor:
             warnings=tuple(warnings),
             matched_terms=tuple(self._unique_terms(terms)),
             confidence=confidence,
+            free_text=normalized.normalized,
         )
 
     @staticmethod

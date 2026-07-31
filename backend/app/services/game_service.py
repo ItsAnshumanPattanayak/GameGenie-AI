@@ -63,6 +63,9 @@ class GameService:
     def platforms(self) -> list[FacetItem]:
         return self._facets("platforms")
 
+    def tags(self) -> list[FacetItem]:
+        return self._facets("tags")
+
     def statistics(self) -> dict[str, int]:
         return {"games": self.count, "genres": len(self.genres()), "platforms": len(self.platforms())}
 
