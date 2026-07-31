@@ -9,4 +9,8 @@ venv/
 .coverage
 htmlcov/
 backend/data/processed/*.tmp
-
+backend/data/embeddings/*.npy
+backend/data/embeddings/game_ids.json
+backend/data/embeddings/metadata.json
+.cache/
+model_cache/

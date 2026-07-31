@@ -1,86 +1,75 @@
-"""Preference parsing: contract plus a concrete catalogue-vocabulary implementation."""
+"""Preference parser protocols and backward-compatible adapters."""
 
 from __future__ import annotations
 
 import re
 from collections.abc import Iterable
-from dataclasses import dataclass, field
 from typing import Protocol
 
+from app.ai.preference_extractor import PreferenceExtractor
+from app.schemas.ai import ExtractedPreferences
 
-@dataclass(frozen=True)
-class ParsedPreferences:
-    genres: tuple[str, ...] = field(default_factory=tuple)
-    platforms: tuple[str, ...] = field(default_factory=tuple)
-    tags: tuple[str, ...] = field(default_factory=tuple)
-    free_text: str = ""
+ParsedPreferences = ExtractedPreferences
 
 
 class PreferenceParser(Protocol):
+    def parse(self, text: str) -> ParsedPreferences: ...
+
+
+class RuleBasedPreferenceParser:
+    """Primary deterministic parser backed by the Sprint 2 extractor."""
+
+    def __init__(self) -> None:
+        self._extractor = PreferenceExtractor()
+
     def parse(self, text: str) -> ParsedPreferences:
-        """Convert natural language into normalized catalogue preferences."""
-        ...
+        return self._extractor.extract(text)
 
 
-_WORD_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+class KeywordPreferenceParser(RuleBasedPreferenceParser):
+    """Compatibility adapter for main-branch catalogue-vocabulary callers.
 
-# Query phrases that imply a catalogue tag/genre/platform even though the
-# word itself never appears verbatim in the vocabulary.
-_SYNONYMS: dict[str, tuple[str, ...]] = {
-    "relaxing": ("relaxing", "cozy", "chill"),
-    "chill": ("relaxing", "cozy"),
-    "scary": ("horror",),
-    "spooky": ("horror",),
-    "pc": ("pc",),
-    "computer": ("pc",),
-    "phone": ("mobile", "ios", "android"),
-    "co-op": ("co-op", "coop"),
-    "coop": ("co-op",),
-    "multiplayer": ("multiplayer",),
-    "singleplayer": ("single-player", "single player"),
-    "solo": ("single-player", "single player"),
-}
-
-
-class KeywordPreferenceParser:
-    """Matches free-text queries against a known catalogue vocabulary.
-
-    Deterministic and dependency-free by design: it is seeded from the
-    genres/platforms/tags that actually exist in the catalogue, so it never
-    "discovers" a preference the dataset can't act on. This keeps Phase 3
-    testable without a live model call, and gives Phase 4's semantic search
-    a clean, normalized set of preferences to score against.
+    The Sprint 2 extractor remains authoritative. Known catalogue values are
+    only overlaid when they occur verbatim, preserving older search contracts
+    without reintroducing a second synonym or interpretation system.
     """
 
     def __init__(
-        self, *, known_genres: Iterable[str], known_platforms: Iterable[str], known_tags: Iterable[str]
+        self,
+        *,
+        known_genres: Iterable[str] = (),
+        known_platforms: Iterable[str] = (),
+        known_tags: Iterable[str] = (),
     ) -> None:
-        self._genres = {value.casefold(): value for value in known_genres}
-        self._platforms = {value.casefold(): value for value in known_platforms}
-        self._tags = {value.casefold(): value for value in known_tags}
+        super().__init__()
+        self._known_genres = tuple(known_genres)
+        self._known_platforms = tuple(known_platforms)
+        self._known_tags = tuple(known_tags)
 
     def parse(self, text: str) -> ParsedPreferences:
-        normalized = " ".join(text.casefold().split())
-        tokens = set(_WORD_PATTERN.findall(normalized))
-        expanded = set(tokens)
-        for token in tokens:
-            expanded.update(_SYNONYMS.get(token, ()))
-
-        genres = self._match(expanded, normalized, self._genres)
-        platforms = self._match(expanded, normalized, self._platforms)
-        tags = self._match(expanded, normalized, self._tags)
-
-        return ParsedPreferences(
-            genres=tuple(sorted(genres)),
-            platforms=tuple(sorted(platforms)),
-            tags=tuple(sorted(tags)),
-            free_text=normalized,
+        parsed = super().parse(text)
+        normalized = parsed.free_text
+        return parsed.model_copy(
+            update={
+                "genres": self._merge(parsed.genres, self._matches(normalized, self._known_genres)),
+                "platforms": self._merge(parsed.platforms, self._matches(normalized, self._known_platforms)),
+                "tags": self._merge(parsed.tags, self._matches(normalized, self._known_tags)),
+            }
         )
 
     @staticmethod
-    def _match(tokens: set[str], normalized_text: str, vocabulary: dict[str, str]) -> set[str]:
-        matched: set[str] = set()
-        for key, original in vocabulary.items():
-            if key in tokens or f" {key} " in f" {normalized_text} ":
-                matched.add(original)
-        return matched
+    def _matches(text: str, vocabulary: tuple[str, ...]) -> tuple[str, ...]:
+        return tuple(
+            value for value in vocabulary if re.search(rf"(?<!\w){re.escape(value.casefold())}(?!\w)", text.casefold())
+        )
+
+    @staticmethod
+    def _merge(current: tuple[str, ...], additions: tuple[str, ...]) -> tuple[str, ...]:
+        seen: set[str] = set()
+        merged: list[str] = []
+        for value in (*current, *additions):
+            key = value.casefold()
+            if key not in seen:
+                seen.add(key)
+                merged.append(value)
+        return tuple(merged)
