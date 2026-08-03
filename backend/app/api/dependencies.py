@@ -3,8 +3,10 @@
 from fastapi import Request
 
 from app.ai.preference_parser import KeywordPreferenceParser
-from app.core.exceptions import CatalogueInitializationError
+from app.core.exceptions import AppError, CatalogueInitializationError
 from app.services.game_service import GameService
+from app.services.generator_service import GeneratorService
+from app.services.history_service import HistoryService
 
 
 def get_game_service(request: Request) -> GameService:
@@ -21,3 +23,17 @@ def get_preference_parser(request: Request) -> KeywordPreferenceParser:
         known_platforms=(item.name for item in service.platforms()),
         known_tags=(item.name for item in service.tags()),
     )
+
+
+def get_history_service(request: Request) -> HistoryService:
+    service = getattr(request.app.state, "history_service", None)
+    if service is None:
+        raise AppError("HISTORY_UNAVAILABLE", "Search history service is unavailable.", 503)
+    return service
+
+
+def get_generator_service(request: Request) -> GeneratorService:
+    service = getattr(request.app.state, "generator_service", None)
+    if service is None:
+        raise AppError("GENERATOR_UNAVAILABLE", "Generator service is unavailable.", 503)
+    return service
