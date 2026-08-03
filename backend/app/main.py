@@ -9,7 +9,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import facets, games, generator, health, recommend, search
+from app.ai.embedding_service import DeterministicHashEmbeddingService, EmbeddingError
+from app.ai.recommender import RecommendationService
+from app.api.routes import ai, facets, games, generator, health, recommend, search
 from app.core.config import Settings, get_settings
 from app.core.exceptions import AppError, register_exception_handlers
 from app.core.logging import configure_logging
@@ -42,20 +44,30 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info("Application startup environment=%s", app_settings.app_env)
         app.state.game_service = None
+        app.state.recommendation_service = None
         app.state.history_service = None
         app.state.generator_service = None
         try:
             app.state.game_service = GameService(_load_catalogue(app_settings))
+            logger.info("Catalogue initialized games=%d", app.state.game_service.count)
+            app.state.recommendation_service = RecommendationService(
+                app.state.game_service.all(), DeterministicHashEmbeddingService()
+            )
+            logger.info(
+                "Recommendation index initialized games=%d",
+                app.state.game_service.count,
+            )
             app.state.history_service = HistoryService(capacity=100)
             app.state.generator_service = GeneratorService()
             logger.info(
-                "Services initialized games=%d history_capacity=%d generator_templates=%s",
-                app.state.game_service.count,
+                "Auxiliary services initialized history_capacity=%d generator_templates=%s",
                 app.state.history_service.capacity,
                 app.state.generator_service.supported_templates,
             )
         except (AppError, ValueError, OSError) as exc:
-            logger.error("Service initialization failed type=%s", type(exc).__name__)
+            logger.error("Catalogue initialization failed type=%s", type(exc).__name__)
+        except EmbeddingError as exc:
+            logger.error("Recommendation initialization failed: %s", exc)
         yield
         logger.info("Application shutdown")
 
@@ -79,6 +91,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(health.router)
     application.include_router(games.router, prefix=app_settings.api_prefix)
     application.include_router(facets.router, prefix=app_settings.api_prefix)
+    application.include_router(ai.router, prefix=app_settings.api_prefix)
     application.include_router(search.router, prefix=app_settings.api_prefix)
     application.include_router(recommend.router, prefix=app_settings.api_prefix)
     application.include_router(generator.router, prefix=app_settings.api_prefix)
