@@ -21,7 +21,7 @@ from app.services.history_service import HistoryService
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/search", tags=["search"])
+router = APIRouter(prefix="/v2", tags=["recommend-v2"])
 
 ParserDep = Annotated[KeywordPreferenceParser, Depends(get_preference_parser)]
 GameServiceDep = Annotated[GameService, Depends(get_game_service)]

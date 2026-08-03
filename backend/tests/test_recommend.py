@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 def test_basic_recommendation_returns_items(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "a relaxing puzzle game", "limit": 5},
     )
     assert response.status_code == 200
@@ -16,7 +16,7 @@ def test_basic_recommendation_returns_items(client: TestClient) -> None:
 
 def test_limit_is_respected(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "space adventure exploration", "limit": 3},
     )
     assert response.status_code == 200
@@ -25,7 +25,7 @@ def test_limit_is_respected(client: TestClient) -> None:
 
 def test_limit_too_large_is_rejected(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "any game", "limit": 100},
     )
     assert response.status_code == 422
@@ -33,7 +33,7 @@ def test_limit_too_large_is_rejected(client: TestClient) -> None:
 
 def test_limit_zero_is_rejected(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "any game", "limit": 0},
     )
     assert response.status_code == 422
@@ -41,7 +41,7 @@ def test_limit_zero_is_rejected(client: TestClient) -> None:
 
 def test_query_too_short_is_rejected(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "ab", "limit": 5},
     )
     assert response.status_code == 422
@@ -49,7 +49,7 @@ def test_query_too_short_is_rejected(client: TestClient) -> None:
 
 def test_ranked_by_final_score_descending(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "puzzle simulation cozy", "limit": 10},
     )
     assert response.status_code == 200
@@ -60,7 +60,7 @@ def test_ranked_by_final_score_descending(client: TestClient) -> None:
 
 def test_rank_starts_at_one(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "cozy puzzle game", "limit": 5},
     )
     assert response.status_code == 200
@@ -73,7 +73,7 @@ def test_rank_starts_at_one(client: TestClient) -> None:
 
 def test_recommendation_has_explanation(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "cozy puzzle game", "limit": 5},
     )
     assert response.status_code == 200
@@ -84,7 +84,7 @@ def test_recommendation_has_explanation(client: TestClient) -> None:
 
 def test_recommendation_has_score_breakdown(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "action game with story", "limit": 3},
     )
     assert response.status_code == 200
@@ -95,7 +95,7 @@ def test_recommendation_has_score_breakdown(client: TestClient) -> None:
 
 def test_preferences_are_returned(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "puzzle game on PC", "limit": 5},
     )
     assert response.status_code == 200
@@ -108,7 +108,7 @@ def test_preferences_are_returned(client: TestClient) -> None:
 
 def test_filter_by_platform(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={
             "query": "any game to play",
             "limit": 10,
@@ -123,7 +123,7 @@ def test_filter_by_platform(client: TestClient) -> None:
 
 def test_filter_by_min_rating(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={
             "query": "any game to play",
             "limit": 10,
@@ -138,12 +138,12 @@ def test_filter_by_min_rating(client: TestClient) -> None:
 
 def test_empty_query_after_strip_is_rejected(client: TestClient) -> None:
     response = client.post(
-        "/api/search/recommend",
+        "/api/v2/recommend",
         json={"query": "   ", "limit": 5},
     )
     assert response.status_code == 422
 
 
 def test_missing_query_field_is_rejected(client: TestClient) -> None:
-    response = client.post("/api/search/recommend", json={"limit": 5})
+    response = client.post("/api/v2/recommend", json={"limit": 5})
     assert response.status_code == 422

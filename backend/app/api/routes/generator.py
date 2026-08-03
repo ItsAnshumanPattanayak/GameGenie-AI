@@ -13,7 +13,7 @@ from app.services.generator_service import GeneratorService
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/generator", tags=["generator"])
+router = APIRouter(prefix="/v2/generator", tags=["generator-v2"])
 
 GeneratorDep = Annotated[GeneratorService, Depends(get_generator_service)]
 
