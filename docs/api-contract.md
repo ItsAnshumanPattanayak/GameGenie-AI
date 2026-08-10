@@ -51,6 +51,8 @@ When an authenticated profile actually changes an item score, that item also inc
 
 Anonymous requests return `search_id: null`, do not persist activity, and retain the Sprint 2 ranking exactly. Authenticated successful requests build the Phase 12 profile before the current query is recorded, apply bounded reranking when signals exist, persist the query, and return the created history ID. A new authenticated user with an empty profile receives the anonymous item ranking.
 
+The authenticated Dashboard sends its natural-language discovery form to this same endpoint with the Bearer access token. It renders the returned items using the shared favourite/feedback card and reloads recent history through `GET /api/history/searches`; there is no separate frontend-only search store.
+
 ## `POST /api/generator/interpret`
 
 Request: `{ "prompt": "...", "selected_game_id": null, "overrides": {} }`. `prompt` may be null and is limited to 2,000 characters; `selected_game_id` is optional; `overrides` is an object.

@@ -32,6 +32,90 @@ function authenticatedApp(path: string, handler: (url: string, init?: RequestIni
 }
 
 describe('user activity UI', () => {
+  it('renders the dashboard search form and validates short queries', async () => {
+    let recommendationRequested = false
+    authenticatedApp('/dashboard', async url => {
+      if (url.endsWith('/api/search/recommend')) recommendationRequested = true
+      return response({ success: true, items: [] })
+    })
+
+    expect(await screen.findByRole('heading', { name: 'Find Your Next Game' })).toBeInTheDocument()
+    expect(screen.getByLabelText('What would you like to play?')).toHaveAttribute(
+      'placeholder',
+      'A futuristic multiplayer shooter for PC with fast combat',
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Recommend games' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('at least 3 characters')
+    expect(recommendationRequested).toBe(false)
+  })
+
+  it('searches from the dashboard, renders personalised results, and refreshes recent searches', async () => {
+    let historyRequests = 0
+    let releaseRecommendation: () => void = () => undefined
+    const recommendationPending = new Promise<void>(resolve => { releaseRecommendation = resolve })
+    let recommendationInit: RequestInit | undefined
+    const newHistory = { ...history, id: 'search-2', query: 'A futuristic multiplayer shooter for PC' }
+    authenticatedApp('/dashboard', async (url, init) => {
+      if (url.endsWith('/api/search/recommend')) {
+        recommendationInit = init
+        await recommendationPending
+        return response({
+          success: true,
+          items: [{
+            ...recommendation,
+            base_score: 72,
+            personalisation_score: 4,
+            final_score: 76,
+            personalisation_reasons: ['Similar to games in your favourites'],
+          }],
+          search_id: 'search-2',
+        })
+      }
+      if (url.endsWith('/api/history/searches')) {
+        historyRequests += 1
+        return response({ success: true, items: historyRequests > 1 ? [newHistory] : [] })
+      }
+      return response({ success: true, items: [] })
+    })
+
+    expect(await screen.findByText('No recent searches.')).toBeInTheDocument()
+    await userEvent.type(screen.getByLabelText('What would you like to play?'), `  ${newHistory.query}  `)
+    await userEvent.click(screen.getByRole('button', { name: 'Recommend games' }))
+    expect(screen.getByRole('button', { name: 'Finding games…' })).toBeDisabled()
+    releaseRecommendation()
+
+    expect(await screen.findByText('Matches your RPG and space preferences.')).toBeInTheDocument()
+    expect(screen.getByText(/Because You Liked/)).toBeInTheDocument()
+    expect(await screen.findByText(newHistory.query)).toBeInTheDocument()
+    expect(historyRequests).toBe(2)
+    expect(new Headers(recommendationInit?.headers).get('Authorization')).toBe('Bearer access-token')
+    expect(JSON.parse(String(recommendationInit?.body))).toEqual({ prompt: newHistory.query, limit: 10 })
+  })
+
+  it('shows a backend recommendation error on the dashboard', async () => {
+    authenticatedApp('/dashboard', async url => {
+      if (url.endsWith('/api/search/recommend')) {
+        return response({ error: { code: 'AI_SERVICE_UNAVAILABLE', message: 'Recommendations are temporarily unavailable.' } }, 503)
+      }
+      return response({ success: true, items: [] })
+    })
+    await screen.findByText('No recent searches.')
+    await userEvent.type(screen.getByLabelText('What would you like to play?'), 'multiplayer shooter')
+    await userEvent.click(screen.getByRole('button', { name: 'Recommend games' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Recommendations are temporarily unavailable')
+  })
+
+  it('shows the shared network error when dashboard search cannot reach the backend', async () => {
+    authenticatedApp('/dashboard', async url => {
+      if (url.endsWith('/api/search/recommend')) throw new TypeError('Failed to fetch')
+      return response({ success: true, items: [] })
+    })
+    await screen.findByText('No recent searches.')
+    await userEvent.type(screen.getByLabelText('What would you like to play?'), 'multiplayer shooter')
+    await userEvent.click(screen.getByRole('button', { name: 'Recommend games' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Cannot reach the GameGenie backend')
+  })
+
   it('renders history and its empty state', async () => {
     authenticatedApp('/history', async url => response({ success: true, items: url.includes('history') ? [history] : [] }))
     expect(await screen.findByText('relaxing space RPG')).toBeInTheDocument()

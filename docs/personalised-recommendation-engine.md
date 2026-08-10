@@ -40,3 +40,5 @@ Weights and controls are environment-configurable through the `PERSONALISATION_*
 - Established account: available preference, favourite, feedback, and recurring-search signals participate; absent signals do not penalize the result.
 
 The base `score_breakdown` remains the Sprint 2 breakdown. Optional `base_score`, `personalisation_score`, `final_score`, `personalisation_signals`, and `personalisation_reasons` explain only the Phase 12 adjustment.
+
+Authenticated users submit natural-language discovery prompts from the Dashboard. A recommendation card shows a concise personalisation context only when the response contains reasons for an actual score change; detailed base, adjustment, final score, and reasons remain collapsed by default.

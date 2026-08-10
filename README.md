@@ -92,6 +92,10 @@ pnpm dev
 
 Run the frontend at `http://localhost:5173` and the backend at `http://127.0.0.1:8000`. The frontend reads the literal `VITE_API_URL` value and otherwise falls back to `http://127.0.0.1:8000`, so a frontend `.env` is optional for this local pairing. Restart Vite after changing its environment file. The app provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, `/favourites`, `/my-games`, `/generator`, `/play/saved/:id`, and `/shared/:slug`. Account, activity, generation, library, and saved-player pages are protected; shared playback is public and read-only. Saved play progress remains a future integration point.
 
+Authenticated users can submit a natural-language game-discovery query directly from the Dashboard. Results use the existing personalised recommendation cards, while successful searches are recorded in Search History and retain favourite and feedback actions.
+
+Authenticated users can submit a natural-language game-discovery query directly from the Dashboard. Results use the existing personalised recommendation cards, while successful searches are recorded in Search History and retain favourite and feedback actions.
+
 ```powershell
 cd frontend
 pnpm test
