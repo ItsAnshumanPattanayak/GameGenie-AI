@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.ai.embedding_service import DeterministicHashEmbeddingService, EmbeddingError
 from app.ai.personalisation import PersonalisationWeights
 from app.ai.recommender import RecommendationService
-from app.api.routes import activity, ai, auth, facets, games, health, preferences
+from app.api.routes import activity, ai, auth, facets, games, generated_games, health, preferences
 from app.core.config import Settings, get_settings
 from app.core.exceptions import AppError, register_exception_handlers
 from app.core.logging import configure_logging
@@ -97,6 +97,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(auth.router, prefix=app_settings.api_prefix)
     application.include_router(preferences.router, prefix=app_settings.api_prefix)
     application.include_router(activity.router, prefix=app_settings.api_prefix)
+    application.include_router(generated_games.router, prefix=app_settings.api_prefix)
     register_exception_handlers(application)
     return application
 

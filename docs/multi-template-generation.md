@@ -69,11 +69,15 @@ Prompts such as `fast runner` raise `player_speed`; `high jumps` raises `jump_fo
 - keep an equivalent React rerender from mounting a duplicate instance;
 - restart completed scenes without creating another React-owned Phaser game.
 
-The Game Studio route is loaded with `React.lazy` at `/my-games` and `/generator`, keeping Phaser out of the main authentication and activity bundle until needed.
+The Game Studio at `/generator`, saved player at `/play/saved/:id`, and public player at `/shared/:slug` are loaded with `React.lazy`, keeping Phaser out of the main authentication, activity, and saved-library bundle until needed. `/my-games` is the lightweight persistent library.
 
 ## Discriminated validation
 
 The backend represents game configuration as a union discriminated by `template`. Each template has its own schema with extra fields forbidden. Template-incompatible fields are rejected: for example, `maze_size` cannot be supplied to `space_shooter`, and Space Shooter enemy fields cannot be supplied to Maze Escape. Numeric overrides are validated and bounded before a configuration reaches the frontend.
+
+## Saved configuration compatibility
+
+Phase 13 stores the validated discriminator and settings with `config_version`. Current records use `1.1`; compatible `1.0` records are validated again on load, preserve existing core gameplay values, and may receive safe schema defaults for missing values. Responses signal this with `migrated_from_version`. Unsupported or malformed versions and template-incompatible stored data are rejected before Phaser mounts. See [generated-games.md](generated-games.md).
 
 ## Verification status
 

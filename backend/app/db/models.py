@@ -37,6 +37,7 @@ class User(Base):
     recommendation_feedback: Mapped[list[RecommendationFeedback]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    generated_games: Mapped[list[GeneratedGame]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class UserPreference(Base):
@@ -126,3 +127,26 @@ class RecommendationFeedback(Base):
 
     user: Mapped[User] = relationship(back_populates="recommendation_feedback")
     search: Mapped[SearchHistory | None] = relationship(back_populates="feedback")
+
+
+class GeneratedGame(Base):
+    __tablename__ = "generated_games"
+    __table_args__ = (Index("ix_generated_games_user_created", "user_id", "created_at"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(60), nullable=False)
+    prompt: Mapped[str] = mapped_column(String(2000), nullable=False)
+    template_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    configuration: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    config_version: Mapped[str] = mapped_column(String(16), nullable=False)
+    public_slug: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True, index=True)
+    is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+
+    user: Mapped[User] = relationship(back_populates="generated_games")

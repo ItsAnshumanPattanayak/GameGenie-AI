@@ -44,13 +44,13 @@ Restart behavior is implemented inside the common scene lifecycle: completed gam
 
 The implemented compatibility surface is catalogue-to-generator handoff: the frontend may pass a `game` query parameter as `selected_game_id`, and the backend incorporates safe catalogue title, genre, tag, and description text before selection and generation. Unknown catalogue IDs retain the existing game-not-found behavior.
 
-Generated-game persistence and saved play sessions are not implemented. There is therefore no saved-configuration migration or backward-compatibility guarantee yet. Any future saved-game format should retain the `template` discriminator and validate stored data against the matching schema before mounting; incompatible or obsolete fields must not be passed directly to Phaser.
+Phase 13 persists generated configurations with their `template` discriminator and `config_version`. Current `1.1` and compatible legacy `1.0` records are validated again before playback; incompatible or obsolete fields are rejected before Phaser mounts. Saved play-session state, scores, and progress are not persisted. See [generated-games.md](generated-games.md).
 
 ## Known limitations
 
 - Phaser is intentionally lazy-loaded but its production game-studio chunk is large and triggers Vite's chunk-size warning.
 - The templates use programmatic shapes and compact mechanics rather than a production asset pipeline, audio system, or content editor.
-- Generated games and play progress are not persisted.
+- Generated configurations are persisted, but play progress, scores, and active scene state are not.
 - Automated tests cover deterministic configuration and lifecycle logic, while keyboard feel, collision pacing, and visual behavior across browsers still benefit from manual release checks.
 
 See [multi-template-generation.md](multi-template-generation.md) for the template matrix and verified Phase 8 status, and [api-contract.md](api-contract.md) for the HTTP contract.

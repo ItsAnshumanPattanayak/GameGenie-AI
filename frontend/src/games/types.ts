@@ -54,3 +54,28 @@ export interface GeneratorResponse {
   configuration: GameConfiguration | null
   warnings: GeneratorWarning[]
 }
+
+export interface GeneratedGame {
+  id: string
+  title: string
+  prompt: string
+  template_type: GameTemplate
+  configuration: GameConfiguration
+  config_version: string
+  migrated_from_version: string | null
+  public_slug: string | null
+  is_public: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface PublicGeneratedGame {
+  title: string
+  template_type: GameTemplate
+  configuration: GameConfiguration
+  config_version: string
+  migrated_from_version: string | null
+  public_slug: string
+  created_at: string
+  updated_at: string
+}

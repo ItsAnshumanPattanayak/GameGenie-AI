@@ -67,6 +67,24 @@ Template schemas forbid extra fields. A known field belonging to a different tem
 
 An unrelated prompt returns HTTP 200 with `success: false`, `UNSUPPORTED_TEMPLATE`, and no configuration. A reasonable partial or ambiguous match may return a deterministic supported configuration with `fallback: true` and `CLOSEST_TEMPLATE` or `AMBIGUOUS_TEMPLATE`. In every case, `original_prompt` preserves the source intent. Malformed request schemas use the standard 422 error envelope. Unknown selected game IDs use the existing game-not-found error.
 
+## Generated-game endpoints
+
+Owner endpoints require `Authorization: Bearer <access_token>`:
+
+- `POST /api/generated-games` creates a private saved game.
+- `GET /api/generated-games` lists only the current user's games.
+- `GET /api/generated-games/{id}` returns one owner-scoped game.
+- `PUT /api/generated-games/{id}` updates supplied title, prompt, template, configuration, or version fields after validating the complete resulting configuration.
+- `DELETE /api/generated-games/{id}` deletes one owner-scoped game.
+- `POST /api/generated-games/{id}/share` creates or returns the active public slug.
+- `POST /api/generated-games/{id}/unshare` revokes the public link and clears its slug.
+
+Create accepts `title`, `prompt`, `template_type`, `configuration`, and optional `config_version` (default `1.1`). Responses contain `id`, the create fields, normalized `config_version`, optional `migrated_from_version`, `public_slug`, `is_public`, `created_at`, and `updated_at`. Configuration is validated both before storage and each time it is returned.
+
+`GET /api/public/generated-games/{slug}` requires no authentication and returns a read-only public representation containing title, template, validated configuration, version/migration information, slug, and timestamps. It excludes owner ID, creator account details, and prompt. Private, revoked, malformed, and unknown slugs use the same `PUBLIC_GAME_NOT_FOUND` response.
+
+Compatible configuration versions are `1.0` and `1.1`; responses normalize compatible legacy data to `1.1` and may report `migrated_from_version: "1.0"`. Malformed versions use `INVALID_CONFIG_VERSION`; unsupported versions use `UNSUPPORTED_CONFIG_VERSION`; mismatched templates use `TEMPLATE_CONFIGURATION_MISMATCH`; invalid or wrong-template fields use `INVALID_GAME_CONFIGURATION`.
+
 ## Errors and ownership
 
 Account and activity persistence are separate from catalogue persistence. Authentication and activity migrations leave the JSON-backed `GameService` and anonymous AI APIs unchanged. `POST /api/search/interpret` now has one registered operation; backward-compatible `query` input remains an alias of canonical `prompt` input.

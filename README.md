@@ -45,6 +45,8 @@ The API includes:
 - `GET`, `POST`, and `DELETE /api/favourites` — current-user catalogue favourites.
 - `GET` and `POST /api/feedback` — controlled recommendation feedback.
 
+- Generated-game APIs provide owner-scoped create/list/read/update/delete operations, revocable share/unshare links, and anonymous read-only playback by public slug.
+
 Examples:
 
 ```text
@@ -75,7 +77,9 @@ mypy app tests
 
 The generator supports exactly three playable templates: `space_shooter`, `endless_runner`, and `maze_escape`. Deterministic prompt-to-template selection recognizes direct requests and common synonyms, returns explicit warnings for partial or unsupported requests, and produces a template-discriminated configuration. Generated speed, jump, spawn, maze, timer, obstacle, difficulty, and scaling values are consumed by the corresponding Phaser scene.
 
-The protected Game Studio uses a shared registry and lifecycle for Phaser mounting, responsive resize, restart, cleanup, and duplicate-instance prevention. It is lazy-loaded at `/my-games` and `/generator` so the game runtime is not part of the initial account/activity bundle.
+The protected Game Studio uses a shared registry and lifecycle for Phaser mounting, responsive resize, restart, cleanup, and duplicate-instance prevention. Phaser is lazy-loaded for generation, saved playback, and public playback, so the runtime is not part of the initial account/activity or saved-library bundle.
+
+Authenticated users can save generated games, reopen all three template types, update settings, delete them, and create or revoke unguessable public links. Configuration version `1.1` is current; compatible `1.0` data is revalidated and safely normalized, while unsupported versions are rejected.
 
 ## Frontend setup
 
@@ -85,7 +89,7 @@ pnpm install
 pnpm dev
 ```
 
-The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, `/favourites`, `/my-games`, and `/generator`. Account, activity, and Game Studio pages are protected. Generated-game persistence and saved play sessions remain future integration points.
+The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, `/favourites`, `/my-games`, `/generator`, `/play/saved/:id`, and `/shared/:slug`. Account, activity, generation, library, and saved-player pages are protected; shared playback is public and read-only. Saved play progress remains a future integration point.
 
 ```powershell
 cd frontend
@@ -106,6 +110,7 @@ AI documentation:
 - [Recommendation engine](docs/recommendation-engine.md)
 - [Game-generation AI](docs/game-generation-ai.md)
 - [Multi-template generation](docs/multi-template-generation.md)
+- [Generated games and sharing](docs/generated-games.md)
 - [API contract](docs/api-contract.md)
 - [Recommendation evaluation](docs/recommendation-evaluation.md)
 - [Sprint 2 AI progress](docs/sprint-2-ai-progress.md)

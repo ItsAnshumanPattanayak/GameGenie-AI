@@ -7,7 +7,7 @@ import type {
   SearchHistory,
   UserPreferences,
 } from './types'
-import type { GeneratorResponse } from './games/types'
+import type { GameConfiguration, GeneratedGame, GeneratorResponse, PublicGeneratedGame } from './games/types'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
 
@@ -115,4 +115,35 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ prompt, selected_game_id: selectedGameId ?? null, overrides: {} }),
     }),
+  generatedGames: (accessToken: string) =>
+    request<{ success: true; items: GeneratedGame[] }>('/api/generated-games', {}, accessToken),
+  generatedGame: (accessToken: string, gameId: string) =>
+    request<{ success: true; item: GeneratedGame }>(`/api/generated-games/${gameId}`, {}, accessToken),
+  createGeneratedGame: (
+    accessToken: string,
+    payload: { title: string; prompt: string; template_type: string; configuration: GameConfiguration; config_version: string },
+  ) => request<{ success: true; item: GeneratedGame }>(
+    '/api/generated-games', { method: 'POST', body: JSON.stringify(payload) }, accessToken,
+  ),
+  updateGeneratedGame: (
+    accessToken: string,
+    gameId: string,
+    payload: { title: string; prompt: string; template_type: string; configuration: GameConfiguration; config_version: string },
+  ) => request<{ success: true; item: GeneratedGame }>(
+    `/api/generated-games/${gameId}`, { method: 'PUT', body: JSON.stringify(payload) }, accessToken,
+  ),
+  deleteGeneratedGame: (accessToken: string, gameId: string) =>
+    request<{ success: true; deleted_id: string }>(
+      `/api/generated-games/${gameId}`, { method: 'DELETE' }, accessToken,
+    ),
+  shareGeneratedGame: (accessToken: string, gameId: string) =>
+    request<{ success: true; item: GeneratedGame }>(
+      `/api/generated-games/${gameId}/share`, { method: 'POST' }, accessToken,
+    ),
+  unshareGeneratedGame: (accessToken: string, gameId: string) =>
+    request<{ success: true; item: GeneratedGame }>(
+      `/api/generated-games/${gameId}/unshare`, { method: 'POST' }, accessToken,
+    ),
+  publicGeneratedGame: (slug: string) =>
+    request<{ success: true; item: PublicGeneratedGame }>(`/api/public/generated-games/${slug}`),
 }

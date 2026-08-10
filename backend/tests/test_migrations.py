@@ -25,5 +25,6 @@ def test_auth_migration_upgrades_empty_database(tmp_path: Path, monkeypatch: pyt
         "search_history",
         "favourite_games",
         "recommendation_feedback",
+        "generated_games",
     } <= tables
     get_settings.cache_clear()
