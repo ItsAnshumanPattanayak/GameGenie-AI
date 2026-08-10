@@ -1,6 +1,6 @@
 # GameGenie AI
 
-GameGenie AI provides the FastAPI/catalogue and Sprint 2 AI foundation plus Sprint 3 persistent accounts, controlled user preferences, and a React/Vite/TypeScript account frontend. Anonymous prompt interpretation, recommendation, and game configuration remain available.
+GameGenie AI provides the FastAPI/catalogue and Sprint 2 AI foundation plus Sprint 3 persistent accounts, controlled user preferences, user activity, and a React/Vite/TypeScript account frontend. Anonymous prompt interpretation, recommendation, and game configuration remain available.
 
 ## Backend setup
 
@@ -41,6 +41,9 @@ The API includes:
 - `POST /api/auth/register`, `/login`, `/refresh`, and `/logout` — persistent account sessions.
 - `GET /api/auth/me` — current authenticated user.
 - `GET` and `PUT /api/preferences` — controlled profile preferences aligned with the AI taxonomy.
+- `GET` and `DELETE /api/history/searches` — current-user recommendation search history.
+- `GET`, `POST`, and `DELETE /api/favourites` — current-user catalogue favourites.
+- `GET` and `POST /api/feedback` — controlled recommendation feedback.
 
 Examples:
 
@@ -76,7 +79,7 @@ pnpm install
 pnpm dev
 ```
 
-The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, and `/preferences`. `/dashboard`, `/history`, `/favourites`, and `/my-games` are protected; the last three are intentional placeholders.
+The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, and `/favourites`. Account activity pages are protected. `/my-games` and the dashboard's generated-game/play-session sections remain intentional future integration points.
 
 ```powershell
 cd frontend
@@ -101,3 +104,4 @@ AI documentation:
 - [Sprint 2 AI progress](docs/sprint-2-ai-progress.md)
 - [Authentication](docs/authentication.md)
 - [User preferences](docs/user-preferences.md)
+- [User activity](docs/user-activity.md)

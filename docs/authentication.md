@@ -28,5 +28,4 @@ Registration and login return a short-lived Bearer access token plus a refresh t
 
 The frontend keeps access tokens in React state and the refresh token in local storage for session restoration. A production deployment with stricter XSS/session requirements should move refresh transport to Secure, HttpOnly, SameSite cookies and add CSRF handling.
 
-`get_current_user` protects account endpoints. `get_optional_current_user` accepts no token for public endpoints but validates a supplied token. Recommendations use the optional dependency; Phase 10 deliberately does not alter ranking based on the user.
-
+`get_current_user` protects account and activity endpoints. `get_optional_current_user` accepts no token for public endpoints but validates a supplied token. Recommendations use the optional dependency: authenticated calls now record Phase 11 search history, but authentication still does not alter ranking.

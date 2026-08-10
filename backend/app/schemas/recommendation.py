@@ -34,3 +34,4 @@ class RecommendationResponse(BaseModel):
     items: list[RecommendationItem]
     normalized_prompt: NormalizedPrompt
     preferences: ExtractedPreferences
+    search_id: str | None = None

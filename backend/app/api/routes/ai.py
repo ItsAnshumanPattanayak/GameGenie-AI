@@ -1,5 +1,6 @@
 """Thin API adapters for AI-owned interpretation, recommendation, and generator logic."""
 
+from time import perf_counter
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -8,7 +9,8 @@ from app.ai.game_generator import GameConfigurationGenerator
 from app.ai.preference_extractor import PreferenceExtractor
 from app.ai.prompt_normalizer import PromptNormalizer
 from app.ai.recommender import RecommendationService
-from app.api.dependencies import OptionalUserDep, get_game_service, get_recommendation_service
+from app.api.dependencies import DbDep, OptionalUserDep, get_game_service, get_recommendation_service
+from app.db.models import SearchHistory
 from app.schemas.ai import GeneratorRequest, GeneratorResponse, InterpretationResponse, InterpretRequest
 from app.schemas.recommendation import RecommendationRequest, RecommendationResponse
 from app.services.game_service import GameService
@@ -33,11 +35,32 @@ def interpret(request: InterpretRequest) -> InterpretationResponse:
 def recommend(
     request: RecommendationRequest,
     service: Annotated[RecommendationService, Depends(get_recommendation_service)],
-    _current_user: OptionalUserDep,
+    current_user: OptionalUserDep,
+    db: DbDep,
 ) -> RecommendationResponse:
+    started = perf_counter()
     prompt = service.normalizer.normalize(request.preference_text)
     preferences = service.extractor.extract_normalized(prompt)
-    return RecommendationResponse(items=service.recommend(request), normalized_prompt=prompt, preferences=preferences)
+    items = service.recommend(request)
+    search_id = None
+    if current_user is not None:
+        history = SearchHistory(
+            user_id=current_user.id,
+            query=request.preference_text,
+            extracted_preferences=preferences.model_dump(mode="json"),
+            result_count=len(items),
+            processing_time_ms=round((perf_counter() - started) * 1000, 3),
+        )
+        db.add(history)
+        db.commit()
+        db.refresh(history)
+        search_id = history.id
+    return RecommendationResponse(
+        items=items,
+        normalized_prompt=prompt,
+        preferences=preferences,
+        search_id=search_id,
+    )
 
 
 @router.post("/generator/interpret", response_model=GeneratorResponse)

@@ -17,5 +17,13 @@ def test_auth_migration_upgrades_empty_database(tmp_path: Path, monkeypatch: pyt
     config = Config(str(Path(__file__).parents[1] / "alembic.ini"))
     command.upgrade(config, "head")
     tables = set(inspect(create_engine(f"sqlite:///{database_path.as_posix()}")).get_table_names())
-    assert {"alembic_version", "users", "user_preferences", "refresh_sessions"} <= tables
+    assert {
+        "alembic_version",
+        "users",
+        "user_preferences",
+        "refresh_sessions",
+        "search_history",
+        "favourite_games",
+        "recommendation_feedback",
+    } <= tables
     get_settings.cache_clear()

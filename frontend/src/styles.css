@@ -18,3 +18,8 @@ button:disabled { opacity: .65; cursor: wait; }.secondary { color: white; backgr
 dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1rem; }dt { color: #9aa5c9; }dd { margin: 0; }
 fieldset { margin: 1.5rem 0; border: 1px solid #303a61; border-radius: 12px; padding: 1rem; }legend { padding: 0 .4rem; font-weight: 800; }.choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .65rem; }.choice { display: flex; align-items: center; gap: .55rem; text-transform: capitalize; }.choice input { width: auto; }
 @media (max-width: 600px) { header { align-items: flex-start; } nav { flex-direction: column; } .auth-shell,.app-shell { padding: 1.5rem 0; } }
+.activity-list,.game-grid { display: grid; gap: 1rem; }.game-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.activity-card { padding: 1.25rem; }.activity-card h2,.activity-card h3 { margin-top: 0; }.card-heading,.section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }.meta { color: #9aa5c9; font-size: .9rem; }
+.feedback-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }.selected { background: #79e6b5; }.empty-state { padding: 2rem; text-align: center; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }.dashboard-section { padding: 1.25rem; }.dashboard-section.wide { grid-column: 1 / -1; }.section-heading h2 { margin-top: 0; }
+@media (max-width: 700px) { .dashboard-grid { grid-template-columns: 1fr; }.card-heading { display: block; } .activity-card .actions > * { flex: 1 1 100%; text-align: center; } }

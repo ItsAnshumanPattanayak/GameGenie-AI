@@ -170,6 +170,7 @@ def test_invalid_preference_vocabulary_is_rejected(auth_client: TestClient) -> N
 def test_anonymous_and_authenticated_recommendations_remain_public(auth_client: TestClient) -> None:
     anonymous = auth_client.post("/api/search/recommend", json={"prompt": "relaxing puzzle", "limit": 3})
     assert anonymous.status_code == 200
+    assert anonymous.json()["search_id"] is None
     data = register(auth_client)
     authenticated = auth_client.post(
         "/api/search/recommend",
@@ -177,4 +178,5 @@ def test_anonymous_and_authenticated_recommendations_remain_public(auth_client: 
         json={"prompt": "relaxing puzzle", "limit": 3},
     )
     assert authenticated.status_code == 200
-    assert authenticated.json() == anonymous.json()
+    assert authenticated.json()["search_id"] is not None
+    assert authenticated.json()["items"] == anonymous.json()["items"]
