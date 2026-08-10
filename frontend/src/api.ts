@@ -33,7 +33,19 @@ async function request<T>(path: string, init: RequestInit = {}, accessToken?: st
   const headers = new Headers(init.headers)
   headers.set('Content-Type', 'application/json')
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
-  const response = await fetch(`${API_URL}${path}`, { ...init, headers })
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}${path}`, { ...init, headers })
+  } catch (reason) {
+    if (reason instanceof TypeError) {
+      throw new ApiError(
+        'Cannot reach the GameGenie backend. Check that it is running and that this frontend origin is allowed.',
+        0,
+        'NETWORK_ERROR',
+      )
+    }
+    throw reason
+  }
   const body = (await response.json().catch(() => ({}))) as T & ErrorBody
   if (!response.ok) {
     throw new ApiError(body.error?.message ?? 'The request failed.', response.status, body.error?.code)

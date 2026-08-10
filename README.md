@@ -15,7 +15,7 @@ Copy-Item .env.example .env  # required for auth; .env is ignored
 python -m alembic upgrade head
 ```
 
-Settings use environment variables. Dataset paths must be relative to `backend` and are prevented from escaping it. `ALLOWED_ORIGINS` is a comma-separated list. Authentication requires an unpredictable `AUTH_SECRET_KEY` of at least 32 characters. SQLite is the local database default; override `DATABASE_URL` for deployment. Phase 12 reranking weights and caps are configurable through the `PERSONALISATION_*` values shown in `backend/.env.example`; component weights must sum to one.
+After copying the backend environment file, set `AUTH_SECRET_KEY` to an unpredictable value of at least 32 characters. The development CORS list permits the Vite origins `http://localhost:5173` and `http://127.0.0.1:5173`; keep `ALLOWED_ORIGINS` as an explicit comma-separated list when changing hosts or ports. Dataset paths must be relative to `backend` and are prevented from escaping it. SQLite is the local database default; override `DATABASE_URL` for deployment. Phase 12 reranking weights and caps are configurable through the `PERSONALISATION_*` values shown in `backend/.env.example`; component weights must sum to one.
 
 ## Run and inspect
 
@@ -86,10 +86,11 @@ Authenticated users can save generated games, reopen all three template types, u
 ```powershell
 cd frontend
 pnpm install
+Copy-Item .env.example .env  # optional while using the local API fallback
 pnpm dev
 ```
 
-The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, `/favourites`, `/my-games`, `/generator`, `/play/saved/:id`, and `/shared/:slug`. Account, activity, generation, library, and saved-player pages are protected; shared playback is public and read-only. Saved play progress remains a future integration point.
+Run the frontend at `http://localhost:5173` and the backend at `http://127.0.0.1:8000`. The frontend reads the literal `VITE_API_URL` value and otherwise falls back to `http://127.0.0.1:8000`, so a frontend `.env` is optional for this local pairing. Restart Vite after changing its environment file. The app provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, `/favourites`, `/my-games`, `/generator`, `/play/saved/:id`, and `/shared/:slug`. Account, activity, generation, library, and saved-player pages are protected; shared playback is public and read-only. Saved play progress remains a future integration point.
 
 ```powershell
 cd frontend

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     app_version: str = "1.0.0"
     debug: bool = False
     api_prefix: str = "/api"
-    allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
     raw_dataset_path: Path = Path("data/raw/games.json")
     processed_dataset_path: Path = Path("data/processed/games.json")
     log_level: str = "INFO"

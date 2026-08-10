@@ -20,6 +20,12 @@ Set `AUTH_SECRET_KEY` to an unpredictable value of at least 32 characters. It ha
 
 Passwords must be 10–128 characters with uppercase, lowercase, and numeric characters. `pwdlib`'s recommended Argon2 implementation hashes them. Passwords and hashes never appear in public schemas. Emails are syntactically validated, trimmed, and case-folded; a unique database index is the final duplicate guard.
 
+## Local frontend connectivity
+
+The documented development pairing is Vite at `http://localhost:5173` (or `http://127.0.0.1:5173`) and FastAPI at `http://127.0.0.1:8000`. The backend default and `backend/.env.example` explicitly allow both Vite origins with credentials, methods, and headers enabled; arbitrary origins are not allowed.
+
+Copy `backend/.env.example` to `backend/.env`, set a real `AUTH_SECRET_KEY`, and restart Uvicorn after changing it. `frontend/.env` is optional because the API client falls back to `http://127.0.0.1:8000`; when overriding it, copy `frontend/.env.example`, keep `VITE_API_URL` as a plain URL assignment, and restart Vite. A browser-level network failure reports that the backend is unreachable or the frontend origin is not allowed, while HTTP errors continue to use the backend's standard message.
+
 ## Session flow
 
 Registration and login return a short-lived Bearer access token plus a refresh token. Both require issuer, subject, type, ID, issue-time, and expiry claims. Refresh tokens also require an active server-side session.

@@ -23,7 +23,8 @@ describe('authentication UI', () => {
   })
 
   it('registers and redirects to the protected dashboard', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response(authResponse, 201)))
+    const fetchMock = vi.fn().mockResolvedValue(response(authResponse, 201))
+    vi.stubGlobal('fetch', fetchMock)
     renderApp('/register')
     await userEvent.type(screen.getByLabelText('Name'), 'Player One')
     await userEvent.type(screen.getByLabelText('Email'), 'player@example.com')
@@ -31,6 +32,34 @@ describe('authentication UI', () => {
     await userEvent.type(screen.getByLabelText('Confirm password'), 'StrongPass123')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByText('Welcome, Player One')).toBeInTheDocument()
+    expect(fetchMock.mock.calls[0][0]).toBe('http://127.0.0.1:8000/api/auth/register')
+    const init = fetchMock.mock.calls[0][1] as RequestInit
+    expect(init.method).toBe('POST')
+    expect(new Headers(init.headers).get('Content-Type')).toBe('application/json')
+    expect(JSON.parse(String(init.body))).toEqual({ name: 'Player One', email: 'player@example.com', password: 'StrongPass123' })
+  })
+
+  it('shows a useful message when the backend cannot be reached', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
+    renderApp('/register')
+    await userEvent.type(screen.getByLabelText('Name'), 'Player One')
+    await userEvent.type(screen.getByLabelText('Email'), 'player@example.com')
+    await userEvent.type(screen.getByLabelText('Password', { selector: '#password' }), 'StrongPass123')
+    await userEvent.type(screen.getByLabelText('Confirm password'), 'StrongPass123')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Cannot reach the GameGenie backend')
+    expect(screen.getByRole('alert')).not.toHaveTextContent('Failed to fetch')
+  })
+
+  it('shows a registration error returned by the backend', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ error: { code: 'EMAIL_ALREADY_REGISTERED', message: 'An account with this email already exists.' } }, 409)))
+    renderApp('/register')
+    await userEvent.type(screen.getByLabelText('Name'), 'Player One')
+    await userEvent.type(screen.getByLabelText('Email'), 'player@example.com')
+    await userEvent.type(screen.getByLabelText('Password', { selector: '#password' }), 'StrongPass123')
+    await userEvent.type(screen.getByLabelText('Confirm password'), 'StrongPass123')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('account with this email already exists')
   })
 
   it('logs in and establishes authenticated state', async () => {

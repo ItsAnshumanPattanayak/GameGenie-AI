@@ -55,6 +55,35 @@ def test_successful_registration_hashes_password_and_hides_hash(auth_client: Tes
         assert verify_password(PASSWORD, user.password_hash)
 
 
+@pytest.mark.parametrize("origin", ["http://localhost:5173", "http://127.0.0.1:5173"])
+def test_registration_preflight_allows_vite_development_origins(auth_client: TestClient, origin: str) -> None:
+    response = auth_client.options(
+        "/api/auth/register",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == origin
+    assert response.headers["access-control-allow-credentials"] == "true"
+    assert "POST" in response.headers["access-control-allow-methods"]
+
+
+def test_registration_preflight_does_not_allow_unknown_origin(auth_client: TestClient) -> None:
+    response = auth_client.options(
+        "/api/auth/register",
+        headers={
+            "Origin": "https://untrusted.example",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 400
+    assert "access-control-allow-origin" not in response.headers
+
+
 def test_duplicate_email_is_rejected_case_insensitively(auth_client: TestClient) -> None:
     register(auth_client, email="player@example.com")
     response = auth_client.post(
