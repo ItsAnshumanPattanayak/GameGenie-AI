@@ -11,12 +11,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.ai.embedding_service import DeterministicHashEmbeddingService, EmbeddingError
 from app.ai.recommender import RecommendationService
-from app.api.routes import ai, facets, games, health, search
+from app.api.routes import ai, auth, facets, games, health, preferences
 from app.core.config import Settings, get_settings
 from app.core.exceptions import AppError, register_exception_handlers
 from app.core.logging import configure_logging
 from app.data.loader import load_raw_records
 from app.data.preprocessing import run_preprocessing
+from app.db.session import build_engine, build_session_factory
 from app.schemas.game import GameResponse
 from app.services.game_service import GameService
 
@@ -37,6 +38,7 @@ def _load_catalogue(settings: Settings) -> list[GameResponse]:
 def create_app(settings: Settings | None = None) -> FastAPI:
     app_settings = settings or get_settings()
     configure_logging(app_settings.log_level)
+    engine = build_engine(app_settings.database_url)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -55,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except EmbeddingError as exc:
             logger.error("Recommendation initialization failed: %s", exc)
         yield
+        engine.dispose()
         logger.info("Application shutdown")
 
     application = FastAPI(
@@ -67,6 +70,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     application.state.settings = app_settings
+    application.state.db_engine = engine
+    application.state.db_session_factory = build_session_factory(engine)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=app_settings.allowed_origins,
@@ -78,7 +83,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(games.router, prefix=app_settings.api_prefix)
     application.include_router(facets.router, prefix=app_settings.api_prefix)
     application.include_router(ai.router, prefix=app_settings.api_prefix)
-    application.include_router(search.router, prefix=app_settings.api_prefix)
+    application.include_router(auth.router, prefix=app_settings.api_prefix)
+    application.include_router(preferences.router, prefix=app_settings.api_prefix)
     register_exception_handlers(application)
     return application
 

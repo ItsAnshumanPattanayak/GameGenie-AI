@@ -13,4 +13,10 @@ backend/data/embeddings/*.npy
 backend/data/embeddings/game_ids.json
 backend/data/embeddings/metadata.json
 .cache/
+.pnpm-store/
 model_cache/
+backend/data/*.db
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.env

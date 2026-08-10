@@ -8,7 +8,7 @@ from app.ai.game_generator import GameConfigurationGenerator
 from app.ai.preference_extractor import PreferenceExtractor
 from app.ai.prompt_normalizer import PromptNormalizer
 from app.ai.recommender import RecommendationService
-from app.api.dependencies import get_game_service, get_recommendation_service
+from app.api.dependencies import OptionalUserDep, get_game_service, get_recommendation_service
 from app.schemas.ai import GeneratorRequest, GeneratorResponse, InterpretationResponse, InterpretRequest
 from app.schemas.recommendation import RecommendationRequest, RecommendationResponse
 from app.services.game_service import GameService
@@ -33,6 +33,7 @@ def interpret(request: InterpretRequest) -> InterpretationResponse:
 def recommend(
     request: RecommendationRequest,
     service: Annotated[RecommendationService, Depends(get_recommendation_service)],
+    _current_user: OptionalUserDep,
 ) -> RecommendationResponse:
     prompt = service.normalizer.normalize(request.preference_text)
     preferences = service.extractor.extract_normalized(prompt)

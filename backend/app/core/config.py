@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     default_page_size: int = Field(default=20, ge=1, le=100)
     max_page_size: int = Field(default=100, ge=1, le=500)
+    database_url: str = "sqlite:///data/gamegenie.db"
+    auth_secret_key: SecretStr | None = None
+    access_token_minutes: int = Field(default=15, ge=1, le=1440)
+    refresh_token_days: int = Field(default=30, ge=1, le=365)
 
     @field_validator("allowed_origins", mode="before")
     @classmethod

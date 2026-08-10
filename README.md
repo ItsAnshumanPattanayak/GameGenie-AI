@@ -1,6 +1,6 @@
 # GameGenie AI
 
-GameGenie AI provides the FastAPI/catalogue foundation plus Sprint 2 prompt interpretation, semantic recommendation, explainable hybrid ranking, and space-shooter configuration generation. The repository is the `GameGenie-AI` child within the parent project folder; all commands below start at this repository root.
+GameGenie AI provides the FastAPI/catalogue and Sprint 2 AI foundation plus Sprint 3 persistent accounts, controlled user preferences, and a React/Vite/TypeScript account frontend. Anonymous prompt interpretation, recommendation, and game configuration remain available.
 
 ## Backend setup
 
@@ -11,10 +11,11 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements-dev.txt
-Copy-Item .env.example .env  # optional; .env is ignored
+Copy-Item .env.example .env  # required for auth; .env is ignored
+python -m alembic upgrade head
 ```
 
-Settings use environment variables. Dataset paths must be relative to `backend` and are prevented from escaping it. `ALLOWED_ORIGINS` is a comma-separated list. Safe defaults work without an `.env` file.
+Settings use environment variables. Dataset paths must be relative to `backend` and are prevented from escaping it. `ALLOWED_ORIGINS` is a comma-separated list. Authentication requires an unpredictable `AUTH_SECRET_KEY` of at least 32 characters. SQLite is the local database default; override `DATABASE_URL` for deployment.
 
 ## Run and inspect
 
@@ -36,6 +37,10 @@ The API includes:
 - `POST /api/search/interpret` — normalize a prompt and extract typed preferences, warnings, and confidence.
 - `POST /api/search/recommend` — return filtered, ranked, scored, and explained catalogue matches.
 - `POST /api/generator/interpret` — select the supported template and return a validated game configuration.
+
+- `POST /api/auth/register`, `/login`, `/refresh`, and `/logout` — persistent account sessions.
+- `GET /api/auth/me` — current authenticated user.
+- `GET` and `PUT /api/preferences` — controlled profile preferences aligned with the AI taxonomy.
 
 Examples:
 
@@ -63,6 +68,22 @@ ruff format --check .
 mypy app tests
 ```
 
+## Frontend setup
+
+```powershell
+cd frontend
+pnpm install
+pnpm dev
+```
+
+The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, and `/preferences`. `/dashboard`, `/history`, `/favourites`, and `/my-games` are protected; the last three are intentional placeholders.
+
+```powershell
+cd frontend
+pnpm test
+pnpm build
+```
+
 Build production embedding artifacts after the public model is available locally:
 
 ```powershell
@@ -78,3 +99,5 @@ AI documentation:
 - [API contract](docs/api-contract.md)
 - [Recommendation evaluation](docs/recommendation-evaluation.md)
 - [Sprint 2 AI progress](docs/sprint-2-ai-progress.md)
+- [Authentication](docs/authentication.md)
+- [User preferences](docs/user-preferences.md)
