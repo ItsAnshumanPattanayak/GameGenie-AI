@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, TypeAlias
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -87,24 +87,21 @@ class ScoreBreakdown(BaseModel):
 
 
 class TemplateSelection(BaseModel):
-    template: Literal["space_shooter"] | None = None
+    template: Literal["space_shooter", "endless_runner", "maze_escape"] | None = None
     supported: bool = False
+    fallback: bool = False
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     reason: str
+    original_prompt: str | None = None
+    warnings: list[AIWarning] = Field(default_factory=list)
 
 
-class GameConfiguration(BaseModel):
+class BaseGameConfiguration(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    template: Literal["space_shooter"] = "space_shooter"
-    title: str = Field(default="Star Defender", min_length=1, max_length=60)
-    theme: str = "space"
+    title: str = Field(min_length=1, max_length=60)
+    theme: str = Field(min_length=1, max_length=40)
     difficulty: Literal["easy", "medium", "hard"] = "medium"
-    player_speed: int = Field(default=7, ge=3, le=10)
-    enemy_speed: int = Field(default=4, ge=1, le=8)
-    enemy_spawn_interval: float = Field(default=2.0, ge=0.5, le=5.0)
-    lives: int = Field(default=3, ge=1, le=5)
-    difficulty_scaling: bool = False
 
     @field_validator("title")
     @classmethod
@@ -113,6 +110,49 @@ class GameConfiguration(BaseModel):
         if any(char in cleaned for char in "<>`{}[];\\"):
             raise ValueError("title contains unsafe characters")
         return cleaned
+
+
+class SpaceShooterConfig(BaseGameConfiguration):
+    template: Literal["space_shooter"] = "space_shooter"
+    title: str = "Star Defender"
+    theme: str = "space"
+    player_speed: int = Field(default=7, ge=3, le=10)
+    enemy_speed: int = Field(default=4, ge=1, le=8)
+    enemy_spawn_interval: float = Field(default=2.0, ge=0.5, le=5.0)
+    lives: int = Field(default=3, ge=1, le=5)
+    difficulty_scaling: bool = False
+
+
+class EndlessRunnerConfig(BaseGameConfiguration):
+    template: Literal["endless_runner"] = "endless_runner"
+    title: str = "Neon Dash"
+    theme: str = "city"
+    player_speed: int = Field(default=7, ge=4, le=14)
+    jump_force: int = Field(default=550, ge=300, le=900)
+    obstacle_frequency: float = Field(default=2.0, ge=0.6, le=4.0)
+    difficulty_scaling: bool = False
+
+
+class MazeEscapeConfig(BaseGameConfiguration):
+    template: Literal["maze_escape"] = "maze_escape"
+    title: str = "Maze Escape"
+    theme: str = "mystery"
+    maze_size: int = Field(default=15, ge=7, le=31)
+    time_limit: int = Field(default=90, ge=20, le=300)
+    obstacle_count: int = Field(default=5, ge=0, le=20)
+
+    @field_validator("maze_size")
+    @classmethod
+    def odd_maze_size(cls, value: int) -> int:
+        if value % 2 == 0:
+            raise ValueError("maze_size must be odd")
+        return value
+
+
+GameConfiguration: TypeAlias = Annotated[
+    SpaceShooterConfig | EndlessRunnerConfig | MazeEscapeConfig,
+    Field(discriminator="template"),
+]
 
 
 class GeneratorRequest(BaseModel):

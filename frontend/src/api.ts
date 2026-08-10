@@ -7,6 +7,7 @@ import type {
   SearchHistory,
   UserPreferences,
 } from './types'
+import type { GeneratorResponse } from './games/types'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
 
@@ -109,4 +110,9 @@ export const api = {
       { method: 'POST', body: JSON.stringify({ prompt, limit: 10 }) },
       accessToken,
     ),
+  generateGame: (prompt: string, selectedGameId?: string | null) =>
+    request<GeneratorResponse>('/api/generator/interpret', {
+      method: 'POST',
+      body: JSON.stringify({ prompt, selected_game_id: selectedGameId ?? null, overrides: {} }),
+    }),
 }

@@ -1,5 +1,7 @@
 # Sprint 3 baseline
 
+> Historical snapshot: this file records the repository before Sprint 3 implementation. Subsequent phases added persistence, authentication, activity, personalisation, the React frontend, and the three-template Phaser runtime. For the current generator state, see [game-generation-ai.md](game-generation-ai.md) and [multi-template-generation.md](multi-template-generation.md).
+
 Verified on 2026-08-10 from branch `feature/ai-sprint-2` at commit `649534c`. The tracked worktree was clean before this inspection. This document describes only files and behavior present in this checkout; it does not assume work from the source laptop or other team members exists.
 
 ## Existing architecture

@@ -77,3 +77,22 @@ def test_generator_endpoint_e2e(client: TestClient) -> None:
 def test_unsupported_generator_endpoint(client: TestClient) -> None:
     response = client.post("/api/generator/interpret", json={"prompt": "farming simulator"})
     assert response.status_code == 200 and response.json()["success"] is False
+
+
+@pytest.mark.parametrize(
+    ("prompt", "template"),
+    [("endless runner with high jumps", "endless_runner"), ("hard maze escape", "maze_escape")],
+)
+def test_additional_generator_templates_endpoint(client: TestClient, prompt: str, template: str) -> None:
+    response = client.post("/api/generator/interpret", json={"prompt": prompt})
+    assert response.status_code == 200
+    assert response.json()["configuration"]["template"] == template
+
+
+def test_generator_endpoint_rejects_wrong_template_override(client: TestClient) -> None:
+    response = client.post(
+        "/api/generator/interpret",
+        json={"prompt": "space shooter", "overrides": {"maze_size": 15}},
+    )
+    assert response.status_code == 200 and response.json()["success"] is False
+    assert response.json()["warnings"][0]["code"] == "TEMPLATE_INCOMPATIBLE_FIELD"

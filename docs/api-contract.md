@@ -53,7 +53,19 @@ Anonymous requests return `search_id: null`, do not persist activity, and retain
 
 ## `POST /api/generator/interpret`
 
-Request: `{ "prompt": "...", "selected_game_id": null, "overrides": {} }`. Response contains `success`, `selection` (`template`, `supported`, `confidence`, `reason`), optional `configuration`, and structured warnings. Unsupported prompts return HTTP 200 with `success: false` and no configuration; malformed schemas use the standard 422 error envelope. Unknown selected game IDs use the existing game-not-found error.
+Request: `{ "prompt": "...", "selected_game_id": null, "overrides": {} }`. `prompt` may be null and is limited to 2,000 characters; `selected_game_id` is optional; `overrides` is an object.
+
+Response contains `success`, `selection`, optional `configuration`, and top-level structured `warnings`. `selection` contains `template`, `supported`, `fallback`, `confidence`, `reason`, `original_prompt`, and its own `warnings`. The only non-null template values are `space_shooter`, `endless_runner`, and `maze_escape`.
+
+`configuration` is discriminated by `template`:
+
+- `space_shooter`: shared `title`, `theme`, and `difficulty`, plus `player_speed`, `enemy_speed`, `enemy_spawn_interval`, `lives`, and `difficulty_scaling`.
+- `endless_runner`: shared fields plus `player_speed`, `jump_force`, `obstacle_frequency`, and `difficulty_scaling`.
+- `maze_escape`: shared fields plus `maze_size`, `time_limit`, and `obstacle_count`.
+
+Template schemas forbid extra fields. A known field belonging to a different template returns HTTP 200 with `success: false`, no configuration, and `TEMPLATE_INCOMPATIBLE_FIELD`. Numeric overrides may be clamped with `VALUE_CLAMPED`; malformed or unknown overrides return structured warnings.
+
+An unrelated prompt returns HTTP 200 with `success: false`, `UNSUPPORTED_TEMPLATE`, and no configuration. A reasonable partial or ambiguous match may return a deterministic supported configuration with `fallback: true` and `CLOSEST_TEMPLATE` or `AMBIGUOUS_TEMPLATE`. In every case, `original_prompt` preserves the source intent. Malformed request schemas use the standard 422 error envelope. Unknown selected game IDs use the existing game-not-found error.
 
 ## Errors and ownership
 

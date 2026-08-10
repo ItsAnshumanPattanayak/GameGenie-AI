@@ -1,6 +1,6 @@
 # GameGenie AI
 
-GameGenie AI provides the FastAPI/catalogue and Sprint 2 AI foundation plus Sprint 3 persistent accounts, controlled user preferences, activity, and bounded personalised reranking with a React/Vite/TypeScript account frontend. Anonymous prompt interpretation, recommendation, and game configuration remain available with their original ranking behavior.
+GameGenie AI provides the FastAPI/catalogue and Sprint 2 AI foundation plus Sprint 3 persistent accounts, controlled user preferences, activity, bounded personalised reranking, and playable Phaser generation in a React/Vite/TypeScript frontend. Anonymous prompt interpretation, recommendation, and game configuration remain available with their original ranking behavior.
 
 ## Backend setup
 
@@ -71,6 +71,12 @@ ruff format --check .
 mypy app tests
 ```
 
+## Playable game generation
+
+The generator supports exactly three playable templates: `space_shooter`, `endless_runner`, and `maze_escape`. Deterministic prompt-to-template selection recognizes direct requests and common synonyms, returns explicit warnings for partial or unsupported requests, and produces a template-discriminated configuration. Generated speed, jump, spawn, maze, timer, obstacle, difficulty, and scaling values are consumed by the corresponding Phaser scene.
+
+The protected Game Studio uses a shared registry and lifecycle for Phaser mounting, responsive resize, restart, cleanup, and duplicate-instance prevention. It is lazy-loaded at `/my-games` and `/generator` so the game runtime is not part of the initial account/activity bundle.
+
 ## Frontend setup
 
 ```powershell
@@ -79,7 +85,7 @@ pnpm install
 pnpm dev
 ```
 
-The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, and `/favourites`. Account activity pages are protected. `/my-games` and the dashboard's generated-game/play-session sections remain intentional future integration points.
+The frontend reads `VITE_API_URL` (default `http://127.0.0.1:8000`) and provides `/register`, `/login`, `/profile`, `/preferences`, `/dashboard`, `/history`, `/favourites`, `/my-games`, and `/generator`. Account, activity, and Game Studio pages are protected. Generated-game persistence and saved play sessions remain future integration points.
 
 ```powershell
 cd frontend
@@ -99,6 +105,7 @@ AI documentation:
 - [Architecture and taxonomy](docs/ai-architecture.md)
 - [Recommendation engine](docs/recommendation-engine.md)
 - [Game-generation AI](docs/game-generation-ai.md)
+- [Multi-template generation](docs/multi-template-generation.md)
 - [API contract](docs/api-contract.md)
 - [Recommendation evaluation](docs/recommendation-evaluation.md)
 - [Sprint 2 AI progress](docs/sprint-2-ai-progress.md)

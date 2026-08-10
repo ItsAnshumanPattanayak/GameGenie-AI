@@ -1,34 +1,56 @@
 # Game-generation AI
 
-## Supported template
+GameGenie generates validated configurations for exactly three playable templates:
 
-`space_shooter` is the only implemented template. Selection requires both a space signal (space, spaceship, starship, or galactic) and a shooting/action signal (shooter, shoot, combat, or blaster). Arcade strengthens confidence. Vague shooters, farming, racing, and empty prompts return a typed unsupported result rather than silently selecting a template.
+- `space_shooter`
+- `endless_runner`
+- `maze_escape`
 
-An optional selected catalogue game is converted to safe descriptive text and joined to the prompt, enabling recommendation-to-generator handoff without coupling generator rules to database access.
+The backend selects a template and derives bounded settings from a prompt. The frontend then dispatches the returned configuration through a shared Phaser runtime. An optional `selected_game_id` lets catalogue metadata contribute safe descriptive context to the prompt without coupling generator rules to database access.
 
-## Configuration defaults and rules
+## Prompt-to-template selection
 
-Defaults are centralized in `game_generator.py`: title `Star Defender`, theme `space`, medium difficulty, player speed 7, enemy speed 4, spawn interval 2.0 seconds, 3 lives, and difficulty scaling disabled.
+`TemplateSelector` extends the existing prompt-normalization flow. Direct template names and supported synonyms contribute deterministic scores. Strong mappings include space shooter, alien shooter, and spaceship combat for `space_shooter`; runner, endless running, and obstacle race for `endless_runner`; and maze, escape labyrinth, and find the exit for `maze_escape`.
 
-Phrase precedence is deterministic: `very fast player` (10) precedes `fast player` (8); `very fast enemies` (7) precedes `fast enemies` (6). `many enemies` uses a 1.0-second interval and `few enemies` uses 4.0. Easy gives 5 lives, enemy speed 2, and a 3.0-second interval. Hard gives 2 lives, enemy speed at least 6, and a 1.25-second interval. `gets harder`, `increasing difficulty`, and `difficulty scaling` enable scaling. Cyberpunk selects the cyberpunk theme and safe title `Cyber Strike`.
+When multiple templates tie, the selector uses the fixed priority `space_shooter`, `endless_runner`, `maze_escape` and returns `AMBIGUOUS_TEMPLATE`. A partial but reasonable match may select the closest template with `CLOSEST_TEMPLATE`. An unrelated prompt returns `UNSUPPORTED_TEMPLATE`, `success: false`, and no configuration. The selection retains `original_prompt`, so an adaptation never falsely presents an unsupported genre as directly supported.
 
-## Frontend contract and safety
+## Configuration and validation
 
-```json
-{
-  "template": "space_shooter",
-  "title": "Cyber Strike",
-  "theme": "cyberpunk",
-  "difficulty": "hard",
-  "player_speed": 7,
-  "enemy_speed": 6,
-  "enemy_spawn_interval": 1.25,
-  "lives": 2,
-  "difficulty_scaling": true
-}
-```
+The API configuration is a Pydantic discriminated union of `SpaceShooterConfig`, `EndlessRunnerConfig`, and `MazeEscapeConfig`, keyed by `template`. Each schema forbids extra fields. A known field from another template, such as `maze_size` on `space_shooter`, produces `TEMPLATE_INCOMPATIBLE_FIELD` and no configuration.
 
-Limits are player speed 3–10, enemy speed 1–8, spawn interval 0.5–5.0 seconds, and lives 1–5. Numeric overrides are clamped with `VALUE_CLAMPED`; bad types, fields, or difficulty values are ignored with structured warnings. Titles allow only letters, digits, spaces, apostrophes, ampersands, and hyphens, are capped at 60 characters, and return sanitization warnings. Extra executable fields are forbidden by the schema.
+All configurations contain `template`, a sanitized `title`, `theme`, and `difficulty` (`easy`, `medium`, or `hard`). Numeric overrides are kept within schema limits and report `VALUE_CLAMPED` when adjusted. Unknown fields, invalid values, and title sanitization produce structured warnings.
 
-This module generates configuration only. It does not implement or claim verification of Phaser movement, collisions, shooting, score, lives, restart, or game-over behavior.
+### Space Shooter
 
+Space Shooter retains the Sprint 2 configuration fields `player_speed`, `enemy_speed`, `enemy_spawn_interval`, `lives`, and `difficulty_scaling`. These values control movement, enemy velocity and spawn timing, starting lives, and increasing challenge. The Phaser scene implements movement, firing, enemies, collision, score, game over, and restart.
+
+### Endless Runner
+
+Endless Runner adds `player_speed`, `jump_force`, `obstacle_frequency`, and `difficulty_scaling`. Generated values control automatic forward speed, jump velocity, obstacle interval, and whether speed increases during play. The scene implements jumping, collision, distance scoring, game over, and restart.
+
+### Maze Escape
+
+Maze Escape adds `maze_size`, `time_limit`, and `obstacle_count`, alongside shared difficulty. Generated values control the odd-sized maze dimensions, countdown duration, obstacle placement, and difficulty-adjusted movement. The scene implements deterministic maze generation, movement, an exit, timer, obstacles, win/lose states, and restart.
+
+## Shared Phaser frontend runtime
+
+The protected game studio is available at `/my-games` and `/generator` and is lazy-loaded so Phaser is excluded from the main account/activity bundle. `frontend/src/games/registry.ts` is the single mapping from template identifier to its scene factory and supported settings.
+
+`GameHost` and `mountTemplate` share canvas creation, template dispatch, responsive resize, configuration-change remounting, unmount cleanup, and error display. Before mounting, the host clears stale children. Cleanup removes the resize listener and calls `game.destroy(true)`. Equivalent React rerenders reuse the current mount; a changed configuration destroys the previous instance before mounting another. This prevents duplicate Phaser instances during rerenders, template switching, resizing, and navigation.
+
+Restart behavior is implemented inside the common scene lifecycle: completed games expose restart input and restart their active scene without creating an additional React-owned Phaser instance.
+
+## Catalogue handoff and saved-game compatibility
+
+The implemented compatibility surface is catalogue-to-generator handoff: the frontend may pass a `game` query parameter as `selected_game_id`, and the backend incorporates safe catalogue title, genre, tag, and description text before selection and generation. Unknown catalogue IDs retain the existing game-not-found behavior.
+
+Generated-game persistence and saved play sessions are not implemented. There is therefore no saved-configuration migration or backward-compatibility guarantee yet. Any future saved-game format should retain the `template` discriminator and validate stored data against the matching schema before mounting; incompatible or obsolete fields must not be passed directly to Phaser.
+
+## Known limitations
+
+- Phaser is intentionally lazy-loaded but its production game-studio chunk is large and triggers Vite's chunk-size warning.
+- The templates use programmatic shapes and compact mechanics rather than a production asset pipeline, audio system, or content editor.
+- Generated games and play progress are not persisted.
+- Automated tests cover deterministic configuration and lifecycle logic, while keyboard feel, collision pacing, and visual behavior across browsers still benefit from manual release checks.
+
+See [multi-template-generation.md](multi-template-generation.md) for the template matrix and verified Phase 8 status, and [api-contract.md](api-contract.md) for the HTTP contract.

@@ -4,6 +4,7 @@ import pytest
 
 from app.ai.game_generator import GameConfigurationGenerator
 from app.ai.template_selector import TemplateSelector
+from app.schemas.ai import SpaceShooterConfig
 from app.schemas.game import GameResponse
 
 
@@ -51,6 +52,7 @@ def test_override_clamping_and_title_sanitizing() -> None:
         "space shooter", overrides={"player_speed": 99, "enemy_spawn_interval": 0, "title": "<Bad>; Strike"}
     )
     assert result.configuration is not None
+    assert isinstance(result.configuration, SpaceShooterConfig)
     assert result.configuration.player_speed == 10 and result.configuration.enemy_spawn_interval == 0.5
     assert result.configuration.title == "Bad Strike"
     assert {warning.code for warning in result.warnings} == {"VALUE_CLAMPED", "TITLE_SANITIZED"}
@@ -70,6 +72,7 @@ def test_recommendation_handoff_and_serialization() -> None:
     )
     result = GameConfigurationGenerator().generate("fast enemies", selected_game=game)
     assert result.success and result.configuration is not None
+    assert isinstance(result.configuration, SpaceShooterConfig)
     assert result.configuration.theme == "cyberpunk" and result.configuration.enemy_speed == 6
     assert result.model_dump(mode="json")["configuration"]["template"] == "space_shooter"
 
@@ -80,6 +83,7 @@ def test_deterministic_repeated_generation() -> None:
     first = generator.generate(prompt)
     assert first == generator.generate(prompt)
     assert first.configuration is not None
+    assert isinstance(first.configuration, SpaceShooterConfig)
     assert first.configuration.difficulty == "hard"
     assert first.configuration.enemy_speed >= 6 and first.configuration.difficulty_scaling
     assert 3 <= first.configuration.player_speed <= 10
