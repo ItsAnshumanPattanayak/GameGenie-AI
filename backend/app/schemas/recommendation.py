@@ -27,6 +27,11 @@ class RecommendationItem(BaseModel):
     score_breakdown: ScoreBreakdown
     explanation: str
     matched_attributes: list[str] = Field(default_factory=list)
+    base_score: float | None = Field(default=None, ge=0, le=100, exclude_if=lambda value: value is None)
+    personalisation_score: float | None = Field(default=None, ge=-20, le=20, exclude_if=lambda value: value is None)
+    final_score: float | None = Field(default=None, ge=0, le=100, exclude_if=lambda value: value is None)
+    personalisation_reasons: list[str] | None = Field(default=None, exclude_if=lambda value: value is None)
+    personalisation_signals: dict[str, float] | None = Field(default=None, exclude_if=lambda value: value is None)
 
 
 class RecommendationResponse(BaseModel):

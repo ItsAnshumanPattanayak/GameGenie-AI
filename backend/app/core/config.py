@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
@@ -33,6 +33,26 @@ class Settings(BaseSettings):
     auth_secret_key: SecretStr | None = None
     access_token_minutes: int = Field(default=15, ge=1, le=1440)
     refresh_token_days: int = Field(default=30, ge=1, le=365)
+    personalisation_base_weight: float = Field(default=0.80, ge=0, le=1)
+    personalisation_explicit_weight: float = Field(default=0.10, ge=0, le=1)
+    personalisation_favourite_weight: float = Field(default=0.04, ge=0, le=1)
+    personalisation_feedback_weight: float = Field(default=0.04, ge=0, le=1)
+    personalisation_recent_search_weight: float = Field(default=0.02, ge=0, le=1)
+    personalisation_total_cap: float = Field(default=0.20, ge=0, le=1)
+    personalisation_prompt_overlap_factor: float = Field(default=0.25, ge=0, le=1)
+
+    @model_validator(mode="after")
+    def validate_personalisation_weights(self) -> Settings:
+        total = (
+            self.personalisation_base_weight
+            + self.personalisation_explicit_weight
+            + self.personalisation_favourite_weight
+            + self.personalisation_feedback_weight
+            + self.personalisation_recent_search_weight
+        )
+        if abs(total - 1.0) > 1e-9:
+            raise ValueError("personalisation component weights must sum to one")
+        return self
 
     @field_validator("allowed_origins", mode="before")
     @classmethod

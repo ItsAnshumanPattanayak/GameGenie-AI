@@ -104,4 +104,14 @@ describe('user activity UI', () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit
     expect(JSON.parse(String(init.body))).toMatchObject({ game_id: 'alpha', search_id: 'search-1', feedback_type: 'interested' })
   })
+
+  it('shows personalised context and keeps score details collapsed by default', async () => {
+    render(<RecommendationCard item={{ ...recommendation, base_score: 72, personalisation_score: 4, final_score: 76, personalisation_reasons: ['Similar to games in your favourites'] }} accessToken="access-token" />)
+    expect(screen.getByText('Because You Liked…')).toBeInTheDocument()
+    const details = screen.getByText('Why this score?').closest('details')
+    expect(details).not.toHaveAttribute('open')
+    await userEvent.click(screen.getByText('Why this score?'))
+    expect(screen.getByText('76.0%')).toBeInTheDocument()
+    expect(screen.getByText('Similar to games in your favourites')).toBeInTheDocument()
+  })
 })

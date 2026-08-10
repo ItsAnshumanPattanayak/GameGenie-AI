@@ -69,7 +69,7 @@ class HybridRankingEngine:
             game = games_by_id.get(candidate.game_id)
             if game is None or not self.passes_hard_filters(game, preferences):
                 continue
-            profile = self._profile(game)
+            profile = self.game_profile(game)
             scores = self._component_scores(candidate.semantic_score, game, profile, preferences)
             final = sum(scores[name] * weights[name] for name in weights)
             breakdown = ScoreBreakdown(
@@ -109,7 +109,8 @@ class HybridRankingEngine:
             return False
         return not ("offline" in filters and game.online_multiplayer is not False)
 
-    def _profile(self, game: GameResponse) -> ExtractedPreferences:
+    def game_profile(self, game: GameResponse) -> ExtractedPreferences:
+        """Return the taxonomy profile reused by base ranking and personalisation."""
         profile = self.extractor.extract(build_game_text(game))
         modes = list(profile.modes)
         if game.single_player and "single-player" not in modes:

@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.ai.embedding_service import DeterministicHashEmbeddingService, EmbeddingError
+from app.ai.personalisation import PersonalisationWeights
 from app.ai.recommender import RecommendationService
 from app.api.routes import activity, ai, auth, facets, games, health, preferences
 from app.core.config import Settings, get_settings
@@ -49,7 +50,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             app.state.game_service = GameService(_load_catalogue(app_settings))
             logger.info("Catalogue initialized games=%d", app.state.game_service.count)
             app.state.recommendation_service = RecommendationService(
-                app.state.game_service.all(), DeterministicHashEmbeddingService()
+                app.state.game_service.all(),
+                DeterministicHashEmbeddingService(),
+                personalisation_weights=PersonalisationWeights(
+                    base=app_settings.personalisation_base_weight,
+                    explicit=app_settings.personalisation_explicit_weight,
+                    favourite=app_settings.personalisation_favourite_weight,
+                    feedback=app_settings.personalisation_feedback_weight,
+                    recent_search=app_settings.personalisation_recent_search_weight,
+                    total_cap=app_settings.personalisation_total_cap,
+                    prompt_overlap_factor=app_settings.personalisation_prompt_overlap_factor,
+                ),
             )
             logger.info("Offline recommendation index initialized games=%d", app.state.game_service.count)
         except (AppError, ValueError, OSError) as exc:

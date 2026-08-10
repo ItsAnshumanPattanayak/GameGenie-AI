@@ -1,6 +1,6 @@
 # GameGenie AI
 
-GameGenie AI provides the FastAPI/catalogue and Sprint 2 AI foundation plus Sprint 3 persistent accounts, controlled user preferences, user activity, and a React/Vite/TypeScript account frontend. Anonymous prompt interpretation, recommendation, and game configuration remain available.
+GameGenie AI provides the FastAPI/catalogue and Sprint 2 AI foundation plus Sprint 3 persistent accounts, controlled user preferences, activity, and bounded personalised reranking with a React/Vite/TypeScript account frontend. Anonymous prompt interpretation, recommendation, and game configuration remain available with their original ranking behavior.
 
 ## Backend setup
 
@@ -15,7 +15,7 @@ Copy-Item .env.example .env  # required for auth; .env is ignored
 python -m alembic upgrade head
 ```
 
-Settings use environment variables. Dataset paths must be relative to `backend` and are prevented from escaping it. `ALLOWED_ORIGINS` is a comma-separated list. Authentication requires an unpredictable `AUTH_SECRET_KEY` of at least 32 characters. SQLite is the local database default; override `DATABASE_URL` for deployment.
+Settings use environment variables. Dataset paths must be relative to `backend` and are prevented from escaping it. `ALLOWED_ORIGINS` is a comma-separated list. Authentication requires an unpredictable `AUTH_SECRET_KEY` of at least 32 characters. SQLite is the local database default; override `DATABASE_URL` for deployment. Phase 12 reranking weights and caps are configurable through the `PERSONALISATION_*` values shown in `backend/.env.example`; component weights must sum to one.
 
 ## Run and inspect
 
@@ -35,7 +35,7 @@ The API includes:
 - `GET /api/games/{game_id}` — one game or a standardized 404.
 - `GET /api/genres` and `GET /api/platforms` — normalized facets with counts.
 - `POST /api/search/interpret` — normalize a prompt and extract typed preferences, warnings, and confidence.
-- `POST /api/search/recommend` — return filtered, ranked, scored, and explained catalogue matches.
+- `POST /api/search/recommend` — return filtered, hybrid-ranked, optionally personalised, scored, and explained catalogue matches.
 - `POST /api/generator/interpret` — select the supported template and return a validated game configuration.
 
 - `POST /api/auth/register`, `/login`, `/refresh`, and `/logout` — persistent account sessions.
@@ -105,3 +105,6 @@ AI documentation:
 - [Authentication](docs/authentication.md)
 - [User preferences](docs/user-preferences.md)
 - [User activity](docs/user-activity.md)
+- [Personalised recommendation engine](docs/personalised-recommendation-engine.md)
+- [Personalisation evaluation](docs/personalisation-evaluation.md)
+- [AI workflow](docs/ai-workflow.md)

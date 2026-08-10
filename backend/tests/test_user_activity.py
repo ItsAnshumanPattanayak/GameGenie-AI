@@ -150,4 +150,33 @@ def test_anonymous_recommendation_still_works_without_history(activity_client: T
     assert response.status_code == 200
     assert response.json()["search_id"] is None
     assert response.json()["items"]
+    assert all("base_score" not in item for item in response.json()["items"])
     assert activity_client.get("/api/history/searches").status_code == 401
+
+
+def test_explicit_profile_personalises_authenticated_results(activity_client: TestClient) -> None:
+    headers = auth_headers(activity_client, "personalised@example.com")
+    updated = activity_client.put(
+        "/api/preferences",
+        headers=headers,
+        json={"preferred_genres": ["action"], "preferred_platforms": ["PC"]},
+    )
+    assert updated.status_code == 200
+    response = activity_client.post(
+        "/api/search/recommend", headers=headers, json={"prompt": "something fun", "limit": 10}
+    )
+    assert response.status_code == 200
+    personalised = [item for item in response.json()["items"] if "base_score" in item]
+    assert personalised
+    assert all(0 <= item["final_score"] <= 100 for item in personalised)
+    assert any(item.get("personalisation_reasons") for item in personalised)
+
+
+def test_repeated_searches_become_a_small_profile_signal(activity_client: TestClient) -> None:
+    headers = auth_headers(activity_client, "recurring@example.com")
+    first = activity_client.post("/api/search/recommend", headers=headers, json={"prompt": "strategy", "limit": 10})
+    second = activity_client.post("/api/search/recommend", headers=headers, json={"prompt": "strategy", "limit": 10})
+    third = activity_client.post("/api/search/recommend", headers=headers, json={"prompt": "game", "limit": 10})
+    assert first.status_code == second.status_code == third.status_code == 200
+    assert all("base_score" not in item for item in first.json()["items"])
+    assert any("recent_searches" in item.get("personalisation_signals", {}) for item in third.json()["items"])

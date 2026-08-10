@@ -30,7 +30,7 @@ export function DashboardPage() {
     {loading && <p role="status">Loading your activity…</p>}{error && <p className="error" role="alert">{error}</p>}
     <div className="dashboard-grid">
       <section className="card dashboard-section wide"><div className="section-heading"><h2>Recommended for You</h2></div>
-        {recommendation?.items.length ? recommendation.items.map(item => <RecommendationCard key={item.game.id} item={item} accessToken={accessToken ?? ''} searchId={recommendation.search_id} initiallyFavourite={favouriteIds.has(item.game.id)} />) : <p className="meta">Your next authenticated recommendation will appear here. Personalised ranking is the Phase 12 integration point.</p>}
+        {recommendation?.items.length ? recommendation.items.map(item => <RecommendationCard key={item.game.id} item={item} accessToken={accessToken ?? ''} searchId={recommendation.search_id} initiallyFavourite={favouriteIds.has(item.game.id)} />) : <p className="meta">Search again from your history to see recommendations shaped by your preferences and activity.</p>}
       </section>
       <section className="card dashboard-section"><div className="section-heading"><h2>Recent Searches</h2><Link to="/history">View all</Link></div>{history.length ? history.map(item => <p key={item.id}><strong>{item.query}</strong><br/><span className="meta">{item.result_count} results</span></p>) : <p className="meta">No recent searches.</p>}</section>
       <section className="card dashboard-section"><div className="section-heading"><h2>Favourite Games</h2><Link to="/favourites">View all</Link></div>{favourites.length ? favourites.map(item => <p key={item.id}><strong>{item.game.title}</strong></p>) : <p className="meta">No favourite games.</p>}</section>

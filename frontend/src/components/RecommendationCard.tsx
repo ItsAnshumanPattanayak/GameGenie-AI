@@ -28,6 +28,15 @@ export function RecommendationCard({
   const [isFavourite, setIsFavourite] = useState(initiallyFavourite)
   const [error, setError] = useState('')
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
+  const reasons = item.personalisation_reasons ?? []
+  const personalised = item.base_score != null && item.final_score != null
+  const contextLabel = reasons.some(reason => reason.includes('favourites'))
+    ? 'Because You Liked…'
+    : reasons.some(reason => reason.includes('recent searches'))
+      ? 'Based on Recent Searches'
+      : reasons.length
+        ? 'Based on Your Preferences'
+        : null
 
   async function toggleFavourite() {
     const next = !isFavourite
@@ -55,8 +64,13 @@ export function RecommendationCard({
   }
 
   return <article className="activity-card">
+    {contextLabel && <p className="personalisation-label">{contextLabel}</p>}
     <div className="card-heading"><div><h3>{item.game.title}</h3><p>{item.explanation}</p></div><button className="secondary compact" onClick={() => void toggleFavourite()}>{isFavourite ? 'Remove favourite' : 'Add favourite'}</button></div>
     <p className="meta">{item.game.genres.join(' · ')} · {Math.round(item.score * 100)}% match</p>
+    {personalised && <details className="score-details"><summary>Why this score?</summary>
+      <dl><dt>Base match</dt><dd>{item.base_score?.toFixed(1)}%</dd><dt>Personalisation</dt><dd>{item.personalisation_score && item.personalisation_score > 0 ? '+' : ''}{item.personalisation_score?.toFixed(1)} points</dd><dt>Final match</dt><dd>{item.final_score?.toFixed(1)}%</dd></dl>
+      {reasons.length > 0 && <ul>{reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
+    </details>}
     <div className="feedback-actions" aria-label={`Feedback for ${item.game.title}`}>
       {Object.entries(feedbackLabels).map(([value, label]) => <button className={feedback === value ? 'selected compact' : 'secondary compact'} key={value} onClick={() => void sendFeedback(value as FeedbackType)}>{label}</button>)}
     </div>

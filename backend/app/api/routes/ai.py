@@ -14,6 +14,7 @@ from app.db.models import SearchHistory
 from app.schemas.ai import GeneratorRequest, GeneratorResponse, InterpretationResponse, InterpretRequest
 from app.schemas.recommendation import RecommendationRequest, RecommendationResponse
 from app.services.game_service import GameService
+from app.services.personalisation_service import build_personalisation_profile
 
 router = APIRouter(tags=["ai"])
 _normalizer = PromptNormalizer()
@@ -41,7 +42,10 @@ def recommend(
     started = perf_counter()
     prompt = service.normalizer.normalize(request.preference_text)
     preferences = service.extractor.extract_normalized(prompt)
-    items = service.recommend(request)
+    profile = (
+        build_personalisation_profile(db, current_user.id, service.extractor) if current_user is not None else None
+    )
+    items = service.recommend(request, profile)
     search_id = None
     if current_user is not None:
         history = SearchHistory(

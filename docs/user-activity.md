@@ -24,4 +24,4 @@ All activity routes require a Bearer access token and scope reads/deletes to the
 
 The protected React routes `/dashboard`, `/history`, and `/favourites` provide loading, empty, and error states. History supports repeat search and deletion. Favourites support catalogue/generator links and optimistic removal with rollback. Recommendation cards optimistically add/remove favourites and roll back with a readable error if the request fails; they also submit all four feedback types.
 
-Activity is an input foundation for Phase 12. It is not yet used to change recommendation scores, and generated-game/play-session dashboard sections remain integration placeholders.
+Phase 12 consumes this activity through bounded personalised reranking. Removing a favourite immediately removes that source from the next assembled profile. Generated-game and play-session dashboard sections remain integration placeholders.

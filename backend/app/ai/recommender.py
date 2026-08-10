@@ -5,6 +5,7 @@ from typing import Protocol
 
 from app.ai.embedding_service import DeterministicHashEmbeddingService, SentenceTransformerEmbeddingService
 from app.ai.explanation_engine import RecommendationExplanationEngine
+from app.ai.personalisation import PersonalisationProfile, PersonalisationWeights, PersonalisedRankingEngine
 from app.ai.preference_extractor import PreferenceExtractor
 from app.ai.prompt_normalizer import PromptNormalizer
 from app.ai.ranking_engine import HybridRankingEngine
@@ -29,6 +30,7 @@ class RecommendationService:
         *,
         candidate_count: int = 30,
         minimum_threshold: float = 0.0,
+        personalisation_weights: PersonalisationWeights | None = None,
     ) -> None:
         self._games = tuple(games)
         self._by_id = {game.id: game for game in games}
@@ -44,8 +46,12 @@ class RecommendationService:
         self.extractor = PreferenceExtractor(self.normalizer)
         self.ranker = HybridRankingEngine(self.extractor)
         self.explanations = RecommendationExplanationEngine()
+        self.personalisation = PersonalisedRankingEngine(personalisation_weights)
+        self._game_profiles = {game.id: self.ranker.game_profile(game) for game in self._games}
 
-    def recommend(self, request: RecommendationRequest) -> list[RecommendationItem]:
+    def recommend(
+        self, request: RecommendationRequest, profile: PersonalisationProfile | None = None
+    ) -> list[RecommendationItem]:
         normalized = self.normalizer.normalize(request.preference_text)
         preferences = self.extractor.extract_normalized(normalized)
         query = self._embedding_service.embed_query(normalized.normalized)
@@ -53,8 +59,9 @@ class RecommendationService:
         if request.excluded_game_ids:
             excluded = set(request.excluded_game_ids)
             candidates = [candidate for candidate in candidates if candidate.game_id not in excluded]
-        ranked = self.ranker.rank(candidates, self._by_id, preferences, limit=request.limit)
-        return [
+        rank_limit = len(candidates) if profile is not None and not profile.is_empty else request.limit
+        ranked = self.ranker.rank(candidates, self._by_id, preferences, limit=rank_limit)
+        items = [
             RecommendationItem(
                 game=item.game,
                 score=item.breakdown.final_score,
@@ -64,3 +71,13 @@ class RecommendationService:
             )
             for item in ranked
         ]
+        if profile is None:
+            return items
+        return self.personalisation.rerank(
+            items,
+            profile,
+            preferences,
+            self._by_id,
+            self._game_profiles,
+            limit=request.limit,
+        )

@@ -72,6 +72,11 @@ export interface RecommendationItem {
   score: number
   explanation: string
   matched_attributes: string[]
+  base_score?: number | null
+  personalisation_score?: number | null
+  final_score?: number | null
+  personalisation_reasons?: string[]
+  personalisation_signals?: Record<string, number>
 }
 
 export interface RecommendationResponse {

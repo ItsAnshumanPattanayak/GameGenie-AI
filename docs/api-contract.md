@@ -33,7 +33,7 @@ All activity endpoints require `Authorization: Bearer <access_token>` and only r
 
 Unknown catalogue IDs use `GAME_NOT_FOUND` (404). Unknown or cross-user history IDs use `SEARCH_HISTORY_NOT_FOUND` (404). Invalid feedback types use the standard validation response.
 
-All scores are JSON numbers on a 0–1 scale. Existing catalogue routes and fields are unchanged.
+Existing semantic, component, and legacy recommendation `score` values remain JSON numbers on a 0–1 scale. Optional Phase 12 explanatory scores use the documented 0–100 percentage-point scale. Existing catalogue routes and fields are unchanged.
 
 ## `POST /api/search/interpret`
 
@@ -45,9 +45,11 @@ Response contains `success`, a `prompt` object (`original`, `normalized`, `token
 
 Request accepts either `preference_text` (the existing field) or backward-compatible input alias `prompt`, plus `limit` (1–50, default 10) and `excluded_game_ids`.
 
-Response contains `success`, `normalized_prompt`, `preferences`, `items`, and `search_id`. Each item retains the existing `game`, `score`, and `explanation` fields and adds `score_breakdown` plus `matched_attributes`. The breakdown includes `semantic_score`, `genre_score`, `platform_score`, `mode_score`, `theme_score`, `mood_score`, `price_score`, `difficulty_score`, `hardware_score`, and `final_score`.
+Response contains `success`, `normalized_prompt`, `preferences`, `items`, and `search_id`. Each item retains the existing `game`, `score`, and `explanation` fields and adds `score_breakdown` plus `matched_attributes`. The breakdown includes `semantic_score`, `genre_score`, `platform_score`, `mode_score`, `theme_score`, `mood_score`, `price_score`, `difficulty_score`, `hardware_score`, and its original 0–1 `final_score`.
 
-Anonymous requests return `search_id: null` and do not persist activity. Authenticated successful requests persist the query, extracted preferences, result count, and processing duration, then return the created history ID. Authentication does not change Phase 11 ranking.
+When an authenticated profile actually changes an item score, that item also includes `base_score` (0–100), signed `personalisation_score` (percentage-point adjustment), `final_score` (0–100), `personalisation_reasons`, and a `personalisation_signals` contribution map. These optional fields are omitted when no signal changes the score. The top-level percent-scale `final_score` is distinct from the preserved hybrid `score_breakdown.final_score`.
+
+Anonymous requests return `search_id: null`, do not persist activity, and retain the Sprint 2 ranking exactly. Authenticated successful requests build the Phase 12 profile before the current query is recorded, apply bounded reranking when signals exist, persist the query, and return the created history ID. A new authenticated user with an empty profile receives the anonymous item ranking.
 
 ## `POST /api/generator/interpret`
 
