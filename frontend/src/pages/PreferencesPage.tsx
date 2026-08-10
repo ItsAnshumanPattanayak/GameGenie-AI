@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 
-import { ApiError, api } from '../api'
+import { api, errorMessage } from '../api'
 import { useAuth } from '../auth/AuthContext'
+import { ErrorState, LoadingState } from '../components/PageState'
 import { TAXONOMY } from '../taxonomy'
 import type { PreferenceInput, UserPreferences } from '../types'
 
@@ -30,12 +31,13 @@ export function PreferencesPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     if (!accessToken) return
     api.preferences(accessToken)
       .then(({ preferences }) => setValues(toInput(preferences)))
-      .catch((reason: unknown) => setError(reason instanceof ApiError ? reason.message : 'Could not load preferences.'))
+      .catch((reason: unknown) => { setLoadFailed(true); setError(errorMessage(reason, 'Could not load preferences.')) })
       .finally(() => setLoading(false))
   }, [accessToken])
 
@@ -57,13 +59,14 @@ export function PreferencesPage() {
       setValues(toInput(response.preferences))
       setMessage('Preferences saved.')
     } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Could not save preferences.')
+      setError(errorMessage(reason, 'Could not save preferences.'))
     } finally {
       setSaving(false)
     }
   }
 
-  if (loading) return <p role="status">Loading preferences…</p>
+  if (loading) return <LoadingState message="Loading preferences…" />
+  if (loadFailed) return <section><p className="eyebrow">Recommendation controls</p><h1>Your preferences</h1><ErrorState message={error} /></section>
   return (
     <form className="card page-card preferences" onSubmit={save}>
       <p className="eyebrow">Recommendation controls</p>
@@ -75,7 +78,7 @@ export function PreferencesPage() {
       <SelectPreference label="Difficulty" value={values.preferred_difficulty} options={TAXONOMY.difficulty} onChange={(value) => setValues({ ...values, preferred_difficulty: value })} />
       <SelectPreference label="Price preference" value={values.price_preference} options={TAXONOMY.price} onChange={(value) => setValues({ ...values, price_preference: value })} />
       <SelectPreference label="Hardware level" value={values.hardware_level} options={TAXONOMY.hardware} onChange={(value) => setValues({ ...values, hardware_level: value })} />
-      {error && <p className="error" role="alert">{error}</p>}
+      {error && <ErrorState message={error} />}
       {message && <p className="success" role="status">{message}</p>}
       <button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save preferences'}</button>
     </form>

@@ -1,3 +1,4 @@
+import { StrictMode } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -69,5 +70,19 @@ describe('authentication UI', () => {
   it('redirects an anonymous visitor away from a protected route', async () => {
     renderApp('/profile')
     expect(await screen.findByRole('heading', { name: 'Log in to GameGenie' })).toBeInTheDocument()
+  })
+
+  it('restores one session without flashing protected content in StrictMode', async () => {
+    localStorage.setItem('gamegenie_refresh_token', 'stored-refresh')
+    let resolveRefresh!: (value: Response) => void
+    const fetchMock = vi.fn(() => new Promise<Response>(resolve => { resolveRefresh = resolve }))
+    vi.stubGlobal('fetch', fetchMock)
+    render(<StrictMode><MemoryRouter initialEntries={['/profile']}><App /></MemoryRouter></StrictMode>)
+    expect(screen.getByRole('status')).toHaveTextContent('Restoring your session')
+    expect(screen.queryByRole('heading', { name: 'Player One' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Log in to GameGenie' })).not.toBeInTheDocument()
+    resolveRefresh(response(authResponse))
+    expect(await screen.findByRole('heading', { name: 'Player One' })).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 })

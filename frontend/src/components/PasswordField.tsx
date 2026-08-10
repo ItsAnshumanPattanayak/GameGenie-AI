@@ -12,7 +12,7 @@ export function PasswordField({ label, id, ...props }: Props) {
       <span>{label}</span>
       <span className="password-row">
         <input id={id} type={visible ? 'text' : 'password'} {...props} />
-        <button type="button" className="secondary compact" onClick={() => setVisible((value) => !value)}>
+        <button type="button" className="secondary compact" aria-label={`${visible ? 'Hide' : 'Show'} ${label.toLowerCase()}`} aria-pressed={visible} onClick={() => setVisible((value) => !value)}>
           {visible ? 'Hide' : 'Show'}
         </button>
       </span>

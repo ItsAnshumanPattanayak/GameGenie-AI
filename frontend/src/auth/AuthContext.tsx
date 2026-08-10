@@ -24,6 +24,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const refreshToken = useRef<string | null>(localStorage.getItem(REFRESH_KEY))
+  const refreshInFlight = useRef<Promise<void> | null>(null)
 
   const applySession = useCallback((response: AuthResponse) => {
     setCurrentUser(response.user)
@@ -40,17 +41,26 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [])
 
   const refreshSession = useCallback(async () => {
-    if (!refreshToken.current) {
-      clearSession()
-      setIsLoading(false)
-      return
-    }
+    if (refreshInFlight.current) return refreshInFlight.current
+    const operation = (async () => {
+      if (!refreshToken.current) {
+        clearSession()
+        setIsLoading(false)
+        return
+      }
+      try {
+        applySession(await api.refresh(refreshToken.current))
+      } catch {
+        clearSession()
+      } finally {
+        setIsLoading(false)
+      }
+    })()
+    refreshInFlight.current = operation
     try {
-      applySession(await api.refresh(refreshToken.current))
-    } catch {
-      clearSession()
+      await operation
     } finally {
-      setIsLoading(false)
+      if (refreshInFlight.current === operation) refreshInFlight.current = null
     }
   }, [applySession, clearSession])
 

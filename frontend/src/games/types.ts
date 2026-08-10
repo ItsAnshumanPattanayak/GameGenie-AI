@@ -1,6 +1,16 @@
 export type GameTemplate = 'space_shooter' | 'endless_runner' | 'maze_escape'
 export type GameDifficulty = 'easy' | 'medium' | 'hard'
 
+export const TEMPLATE_LABELS: Record<GameTemplate, string> = {
+  space_shooter: 'Space Shooter',
+  endless_runner: 'Endless Runner',
+  maze_escape: 'Maze Escape',
+}
+
+export function templateLabel(template: GameTemplate): string {
+  return TEMPLATE_LABELS[template]
+}
+
 interface BaseGameConfig {
   template: GameTemplate
   title: string

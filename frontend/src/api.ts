@@ -9,7 +9,7 @@ import type {
 } from './types'
 import type { GameConfiguration, GeneratedGame, GeneratorResponse, PublicGeneratedGame } from './games/types'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
+const API_URL = (import.meta.env.VITE_API_URL?.trim() || 'http://127.0.0.1:8000').replace(/\/+$/, '')
 
 interface ErrorBody {
   error?: { code?: string; message?: string }
@@ -23,6 +23,10 @@ export class ApiError extends Error {
   ) {
     super(message)
   }
+}
+
+export function errorMessage(reason: unknown, fallback: string): string {
+  return reason instanceof Error && reason.message.trim() ? reason.message : fallback
 }
 
 async function request<T>(path: string, init: RequestInit = {}, accessToken?: string): Promise<T> {

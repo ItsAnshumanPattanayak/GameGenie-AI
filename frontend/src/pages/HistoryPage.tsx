@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { api } from '../api'
+import { api, errorMessage } from '../api'
 import { useAuth } from '../auth/AuthContext'
+import { EmptyState, ErrorState, LoadingState } from '../components/PageState'
 import type { SearchHistory } from '../types'
 
 function preferenceSummary(values: Record<string, unknown>): string {
@@ -20,7 +21,7 @@ export function HistoryPage() {
 
   useEffect(() => {
     if (!accessToken) return
-    api.searchHistory(accessToken).then(data => setItems(data.items)).catch(caught => setError(caught instanceof Error ? caught.message : 'Could not load search history.')).finally(() => setLoading(false))
+    api.searchHistory(accessToken).then(data => setItems(data.items)).catch(caught => setError(errorMessage(caught, 'Could not load search history.'))).finally(() => setLoading(false))
   }, [accessToken])
 
   async function searchAgain(item: SearchHistory) {
@@ -31,7 +32,7 @@ export function HistoryPage() {
       const recommendation = await api.recommend(item.query, accessToken)
       navigate('/dashboard', { state: { recommendation } })
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not repeat this search.')
+      setError(errorMessage(caught, 'Could not repeat this search.'))
       setBusyId(null)
     }
   }
@@ -44,20 +45,20 @@ export function HistoryPage() {
       await api.deleteSearchHistory(accessToken, item.id)
       setItems(current => current.filter(entry => entry.id !== item.id))
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not delete this search.')
+      setError(errorMessage(caught, 'Could not delete this search.'))
     } finally {
       setBusyId(null)
     }
   }
 
   return <section><p className="eyebrow">Your activity</p><h1>Search history</h1>
-    {loading && <p role="status">Loading search history…</p>}
-    {error && <p className="error" role="alert">{error}</p>}
-    {!loading && !error && items.length === 0 && <div className="card empty-state"><h2>No searches yet</h2><p>Authenticated recommendations will appear here.</p></div>}
-    <div className="activity-list">{items.map(item => <article className="card activity-card" key={item.id}>
+    {loading && <LoadingState message="Loading search history…" />}
+    {error && <ErrorState message={error} />}
+    {!loading && !error && items.length === 0 && <EmptyState title="No searches yet" message="Authenticated recommendations will appear here." />}
+    {!loading && !error && <div className="activity-list">{items.map(item => <article className="card activity-card" key={item.id}>
       <div className="card-heading"><div><h2>{item.query}</h2><p className="meta">{new Date(item.created_at).toLocaleString()} · {item.result_count} results</p></div></div>
       <p>{preferenceSummary(item.extracted_preferences)}</p>
-      <div className="actions"><button disabled={busyId === item.id} onClick={() => void searchAgain(item)}>Search Again</button><button className="secondary" disabled={busyId === item.id} onClick={() => void remove(item)}>Delete</button></div>
-    </article>)}</div>
+      <div className="actions"><button disabled={busyId === item.id} aria-label={`Search again for ${item.query}`} onClick={() => void searchAgain(item)}>{busyId === item.id ? 'Working…' : 'Search Again'}</button><button className="secondary" disabled={busyId === item.id} aria-label={`Delete search ${item.query}`} onClick={() => void remove(item)}>Delete</button></div>
+    </article>)}</div>}
   </section>
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { mountTemplate } from './runtime'
+import { templateLabel } from './types'
 import type { GameConfiguration } from './types'
 
 interface Props {
@@ -23,9 +24,15 @@ export function GameHost({ configuration, mount = mountTemplate }: Props) {
     }
   }, [configurationKey, mount])
 
-  return <section className="game-frame" aria-label={`${configuration.title} game`}>
-    <div ref={container} className="phaser-mount" />
+  const instructions = configuration.template === 'space_shooter'
+    ? 'Move with the arrow keys, fire with Space, and press R or click after game over to restart.'
+    : configuration.template === 'endless_runner'
+      ? 'Jump with Space or the up arrow, and press R or click after game over to restart.'
+      : 'Move with the arrow keys, reach the exit before time expires, and press R or click after the game ends to restart.'
+
+  return <section className="game-frame" aria-label={`${configuration.title}, ${templateLabel(configuration.template)}`}>
+    <div ref={container} className="phaser-mount" aria-label={`${templateLabel(configuration.template)} canvas`} />
     {error && <p className="error" role="alert">{error}</p>}
-    <p className="meta">Controls and restart instructions appear inside the game.</p>
+    <p className="meta game-instructions">{instructions}</p>
   </section>
 }

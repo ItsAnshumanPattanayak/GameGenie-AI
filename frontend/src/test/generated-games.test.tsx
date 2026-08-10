@@ -76,12 +76,12 @@ describe('generated-game persistence UI', () => {
       if (url.endsWith('/unshare')) return response({ success: true, item: privateGame })
       return response({ success: true, items: [privateGame] })
     })
-    await userEvent.click(await screen.findByRole('button', { name: 'Share' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Share Saved Stars' }))
     expect(await screen.findByText('Public')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /a-unique-public-slug/ })).toHaveAttribute(
       'href', expect.stringContaining('/shared/a-unique-public-slug-value-1234'),
     )
-    await userEvent.click(screen.getByRole('button', { name: 'Unshare' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Unshare Saved Stars' }))
     expect(await screen.findByText('Private')).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /a-unique-public-slug/ })).not.toBeInTheDocument()
   })
@@ -93,7 +93,7 @@ describe('generated-game persistence UI', () => {
       if (init?.method === 'DELETE') { deleted = true; return response({ success: true, deleted_id: 'saved-space_shooter' }) }
       return response({ success: true, items: [savedGame()] })
     })
-    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete Saved Stars' }))
     await waitFor(() => expect(screen.queryByText('Saved Stars')).not.toBeInTheDocument())
     expect(deleted).toBe(true)
   })
@@ -110,7 +110,7 @@ describe('generated-game persistence UI', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ success: true, item })))
     render(<MemoryRouter initialEntries={['/shared/public-maze-slug-value-123456']}><App /></MemoryRouter>)
     expect(await screen.findByTestId('game-host', {}, { timeout: 5000 })).toHaveTextContent('Playing maze_escape')
-    expect(screen.getByRole('link', { name: 'Create Your Own Game' })).toHaveAttribute('href', '/register')
+    expect(screen.getByRole('link', { name: 'Create your own game' })).toHaveAttribute('href', '/register')
   })
 
   it.each(['invalid slug', 'private game'])('shows the unavailable state for %s', async () => {

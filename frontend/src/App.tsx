@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react'
-import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, NavLink, Outlet, Route, Routes } from 'react-router-dom'
 
 import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
+import { LoadingState } from './components/PageState'
 import { DashboardPage } from './pages/DashboardPage'
 import { FavouritesPage } from './pages/FavouritesPage'
 import { HistoryPage } from './pages/HistoryPage'
@@ -17,19 +18,24 @@ const SavedGamePlayerPage = lazy(async () => ({ default: (await import('./pages/
 const PublicSharedGamePage = lazy(async () => ({ default: (await import('./pages/PublicSharedGamePage')).PublicSharedGamePage }))
 
 function GameStudioRoute() {
-  return <Suspense fallback={<p role="status">Loading game studio…</p>}><GameStudioPage /></Suspense>
+  return <Suspense fallback={<LoadingState message="Loading game studio…" />}><GameStudioPage /></Suspense>
 }
 
 function SavedGameRoute() {
-  return <Suspense fallback={<p role="status">Loading saved game…</p>}><SavedGamePlayerPage /></Suspense>
+  return <Suspense fallback={<LoadingState message="Loading saved game…" />}><SavedGamePlayerPage /></Suspense>
 }
 
 function PublicGameRoute() {
-  return <Suspense fallback={<p role="status">Loading shared game…</p>}><PublicSharedGamePage /></Suspense>
+  return <Suspense fallback={<LoadingState message="Loading shared game…" fullPage />}><PublicSharedGamePage /></Suspense>
 }
 
+const navigation = [
+  ['/dashboard', 'Dashboard'], ['/my-games', 'My Games'], ['/generator', 'Generate'],
+  ['/history', 'History'], ['/favourites', 'Favourites'], ['/preferences', 'Preferences'], ['/profile', 'Profile'],
+] as const
+
 function AccountLayout() {
-  return <><header><Link className="brand" to="/dashboard">GameGenie <span>AI</span></Link><nav><Link to="/dashboard">Dashboard</Link><Link to="/my-games">My Games</Link><Link to="/generator">Generate</Link><Link to="/history">History</Link><Link to="/favourites">Favourites</Link><Link to="/preferences">Preferences</Link><Link to="/profile">Profile</Link></nav></header><main className="app-shell"><Outlet /></main></>
+  return <><a className="skip-link" href="#main-content">Skip to main content</a><header className="site-header"><Link className="brand" to="/dashboard">GameGenie <span>AI</span></Link><nav aria-label="Primary navigation">{navigation.map(([to, label]) => <NavLink key={to} to={to} className={({ isActive }) => isActive ? 'active' : undefined}>{label}</NavLink>)}</nav></header><main id="main-content" className="app-shell"><Outlet /></main></>
 }
 
 export function App() {

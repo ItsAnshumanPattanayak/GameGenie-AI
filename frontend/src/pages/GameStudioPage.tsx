@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import { api } from '../api'
+import { api, errorMessage } from '../api'
 import { useAuth } from '../auth/AuthContext'
+import { ErrorState, LoadingState } from '../components/PageState'
 import { GameHost } from '../games/GameHost'
 import { getTemplateDefinition } from '../games/registry'
+import { templateLabel } from '../games/types'
 import type { GameConfiguration } from '../games/types'
 
 const examples = [
@@ -38,7 +40,7 @@ export function GameStudioPage() {
         setConfiguration(result.item.configuration)
         setPersistedId(result.item.id)
       })
-      .catch(caught => { if (active) setError(caught instanceof Error ? caught.message : 'The saved game could not be loaded.') })
+      .catch(caught => { if (active) setError(errorMessage(caught, 'The saved game could not be loaded.')) })
       .finally(() => { if (active) setLoadingSaved(false) })
     return () => { active = false }
   }, [accessToken, requestedSavedId])
@@ -56,7 +58,7 @@ export function GameStudioPage() {
       }
       setConfiguration(result.configuration)
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'The game configuration could not be generated.')
+      setError(errorMessage(caught, 'The game configuration could not be generated.'))
     } finally {
       setLoading(false)
     }
@@ -81,22 +83,22 @@ export function GameStudioPage() {
       setConfiguration(result.item.configuration)
       setSaveMessage(wasPersisted ? 'Saved game updated.' : 'Game saved to My Games.')
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'The generated game could not be saved.')
+      setError(errorMessage(caught, 'The generated game could not be saved.'))
     } finally {
       setSaving(false)
     }
   }
 
-  if (loadingSaved) return <p role="status">Loading saved settings…</p>
+  if (loadingSaved) return <LoadingState message="Loading saved settings…" />
 
   return <section><p className="eyebrow">Multi-template studio</p><h1>Generate a playable game</h1>
     <p>Choose one of the three supported templates or describe a variation. Generated settings directly control the scene.</p>
-    <div className="actions template-examples">{examples.map(([label, value]) => <button className="secondary" key={label} onClick={() => setPrompt(value)}>{label}</button>)}</div>
+    <div className="actions template-examples" aria-label="Template examples">{examples.map(([label, value]) => <button className="secondary" aria-pressed={prompt === value} key={label} onClick={() => setPrompt(value)}>{label}</button>)}</div>
     <label className="generator-prompt">Game prompt<textarea value={prompt} onChange={event => setPrompt(event.target.value)} rows={4} /></label>
     <button disabled={loading} onClick={() => void generate()}>{loading ? 'Generating…' : 'Generate and play'}</button>
-    {error && <p className="error" role="alert">{error}</p>}
+    {error && <ErrorState message={error} />}
     {warnings.length > 0 && <div className="warning" role="status"><strong>Adaptation notes</strong><ul>{warnings.map(warning => <li key={warning}>{warning}</li>)}</ul></div>}
     {saveMessage && <p className="success" role="status">{saveMessage}</p>}
-    {configuration && <><div className="configuration-summary card"><h2>{configuration.title}</h2><p><strong>Template:</strong> {configuration.template.replaceAll('_', ' ')} · <strong>Theme:</strong> {configuration.theme} · <strong>Difficulty:</strong> {configuration.difficulty}</p><p className="meta">Active settings: {getTemplateDefinition(configuration.template).supportedSettings.join(', ')}</p><div className="actions"><button disabled={saving} onClick={() => void save()}>{saving ? 'Saving…' : persistedId ? 'Update saved game' : 'Save game'}</button>{persistedId && <Link className="button-link secondary" to={`/play/saved/${persistedId}`}>Open saved game</Link>}</div></div><GameHost configuration={configuration} /></>}
+    {configuration && <><div className="configuration-summary card"><h2>{configuration.title}</h2><p><strong>Template:</strong> {templateLabel(configuration.template)} · <strong>Theme:</strong> {configuration.theme} · <strong>Difficulty:</strong> {configuration.difficulty}</p><p className="meta">Active settings: {getTemplateDefinition(configuration.template).supportedSettings.join(', ')}</p><div className="actions"><button disabled={saving} onClick={() => void save()}>{saving ? 'Saving…' : persistedId ? 'Update saved game' : 'Save game'}</button>{persistedId && <Link className="button-link secondary" to={`/play/saved/${persistedId}`}>Open saved game</Link>}</div></div><GameHost configuration={configuration} /></>}
   </section>
 }
