@@ -120,3 +120,4 @@ AI documentation:
 - [Personalised recommendation engine](docs/personalised-recommendation-engine.md)
 - [Personalisation evaluation](docs/personalisation-evaluation.md)
 - [AI workflow](docs/ai-workflow.md)
+- [Sprint 3 completion report](docs/sprint-3-completion-report.md)

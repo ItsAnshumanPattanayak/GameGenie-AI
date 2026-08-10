@@ -14,7 +14,7 @@ Every registered user receives a persistent `UserPreference` row. `GET /api/pref
 
 List inputs reject unknown values, remove duplicates, and return values in authoritative taxonomy order. The frontend options mirror `backend/app/ai/taxonomy.py`.
 
-`PreferenceValues.to_ai_preferences()` exposes the profile as the existing immutable `ExtractedPreferences` representation (`genres`, `platforms`, `modes`, `moods`, `difficulty`, `price_type`, and `hardware_level`). This is the boundary for a later personalised-ranking phase. Phase 10 stores and validates preferences only.
+`PreferenceValues.to_ai_preferences()` exposes the profile as the existing immutable `ExtractedPreferences` representation (`genres`, `platforms`, `modes`, `moods`, `difficulty`, `price_type`, and `hardware_level`). The Phase 12 personalisation service consumes that normalized boundary as its explicit-preference signal. Its influence is bounded to the configured preference budget and reduced when the active prompt already expresses the same category.
 
 ```json
 {

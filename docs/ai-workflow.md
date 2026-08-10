@@ -16,7 +16,7 @@ Anonymous requests skip steps 5 and 7 and return the original ranking path uncha
 
 The JSON-backed `GameService` remains the catalogue owner. SQLAlchemy stores accounts and activity using stable game IDs; it does not duplicate catalogue rows. The profile builder performs bounded set queries, and the reranker uses the recommendation service's loaded game map and taxonomy profiles, avoiding N+1 catalogue access.
 
-Generated-game activity is represented as an optional empty profile field until a persistent generated-game model exists. The recommender does not require that future source.
+Generated games are persisted separately from catalogue activity. The profile type tolerates an optional generated-game source, but the current database profile adapter deliberately does not use generated games as a ranking signal. Recommendations therefore depend only on explicit preferences, favourites, feedback, and recurring recent searches.
 
 ## Explanation boundary
 
