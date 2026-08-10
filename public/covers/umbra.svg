@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="A lone explorer in a luminous forest">
+  <defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#101425"/><stop offset="1" stop-color="#081912"/></linearGradient><radialGradient id="b"><stop stop-color="#fff8c9"/><stop offset=".35" stop-color="#90e6d7"/><stop offset="1" stop-color="#90e6d7" stop-opacity="0"/></radialGradient></defs><rect width="800" height="450" fill="url(#a)"/><circle cx="420" cy="162" r="145" fill="url(#b)" opacity=".9"/>
+  <g fill="#08100d"><path d="M0 450V100l65 90 50-155 58 185 55-110 54 340Z"/><path d="M800 450V50l-70 166-63-118-52 202-60-147-65 297Z"/></g><path d="M0 392 Q200 350 400 381T800 372V450H0Z" fill="#07100d"/>
+  <path d="M385 372v-78c0-19 11-30 28-30s29 11 29 30v78Z" fill="#101425"/><circle cx="413" cy="244" r="18" fill="#101425"/><path d="M401 278l-20 44M426 278l27 45" stroke="#101425" stroke-width="10" stroke-linecap="round"/>
+  <g fill="#b8fff1"><circle cx="236" cy="292" r="3"/><circle cx="530" cy="280" r="4"/><circle cx="324" cy="168" r="3"/><circle cx="587" cy="196" r="2"/></g><text x="45" y="69" fill="#fff" font-family="Arial" font-weight="700" font-size="29" letter-spacing="3">ECHOES OF UMBRA</text><text x="48" y="98" fill="#a9d9ca" font-family="Arial" font-size="14">EVERY SHADOW REMEMBERS</text>
+</svg>
