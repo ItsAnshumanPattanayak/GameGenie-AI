@@ -6,8 +6,14 @@ __pycache__/
 .venv/
 venv/
 .env
+.env.*
+!.env.example
+!**/.env.example
 .coverage
+.coverage.*
 htmlcov/
+**/.pytest-temp-*/
+backend/test-tmp/
 backend/data/processed/*.tmp
 backend/data/embeddings/*.npy
 backend/data/embeddings/game_ids.json
@@ -15,7 +21,9 @@ backend/data/embeddings/metadata.json
 .cache/
 .pnpm-store/
 model_cache/
-backend/data/*.db
+backend/**/*.db
+backend/**/*.sqlite
+backend/**/*.sqlite3
 frontend/node_modules/
 frontend/dist/
 frontend/coverage/

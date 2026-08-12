@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -15,7 +16,11 @@ class Settings(BaseSettings):
     """Runtime settings with safe local-development defaults."""
 
     model_config = SettingsConfigDict(
-        env_file=BACKEND_ROOT / ".env", env_file_encoding="utf-8", extra="ignore", enable_decoding=False
+        env_file=BACKEND_ROOT / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        enable_decoding=False,
+        hide_input_in_errors=True,
     )
 
     app_name: str = "GameGenie AI Backend"
@@ -54,11 +59,68 @@ class Settings(BaseSettings):
             raise ValueError("personalisation component weights must sum to one")
         return self
 
+    @model_validator(mode="after")
+    def validate_production_configuration(self) -> Settings:
+        if self.app_env != "production":
+            return self
+        secret = self.auth_secret_key.get_secret_value() if self.auth_secret_key else ""
+        if len(secret) < 32:
+            raise ValueError("production requires AUTH_SECRET_KEY with at least 32 characters")
+        if self.debug:
+            raise ValueError("production does not permit DEBUG=true")
+        if not self.database_url.startswith("postgresql+psycopg://"):
+            raise ValueError("production requires a PostgreSQL DATABASE_URL")
+        if not any(origin.startswith("https://") for origin in self.allowed_origins):
+            raise ValueError("production ALLOWED_ORIGINS must include the deployed HTTPS frontend origin")
+        return self
+
+    @field_validator("app_env")
+    @classmethod
+    def normalize_environment(cls, value: str) -> str:
+        normalized = value.strip().casefold()
+        return "production" if normalized == "prod" else normalized
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: object) -> object:
+        if not isinstance(value, str):
+            return value
+        normalized = value.strip()
+        if not normalized:
+            return "sqlite:///data/gamegenie.db"
+        if normalized.startswith("postgres://"):
+            return f"postgresql+psycopg://{normalized.removeprefix('postgres://')}"
+        if normalized.startswith("postgresql://"):
+            return f"postgresql+psycopg://{normalized.removeprefix('postgresql://')}"
+        return normalized
+
     @field_validator("allowed_origins", mode="before")
     @classmethod
     def parse_origins(cls, value: object) -> object:
         if isinstance(value, str):
-            return [item.strip() for item in value.split(",") if item.strip()]
+            value = [item.strip() for item in value.split(",") if item.strip()]
+        if isinstance(value, list):
+            origins = [str(item).strip().rstrip("/") for item in value if str(item).strip()]
+            if "*" in origins:
+                raise ValueError("wildcard CORS origins are incompatible with credentialed requests")
+            for origin in origins:
+                parsed = urlsplit(origin)
+                try:
+                    port = parsed.port
+                except ValueError as exc:
+                    raise ValueError("CORS origins must contain a valid port") from exc
+                if (
+                    parsed.scheme not in {"http", "https"}
+                    or parsed.hostname is None
+                    or parsed.path
+                    or parsed.query
+                    or parsed.fragment
+                    or parsed.username is not None
+                    or parsed.password is not None
+                    or (port is not None and not 1 <= port <= 65535)
+                ):
+                    raise ValueError("CORS origins must be HTTP(S) origins without paths or credentials")
+            return origins
         return value
 
     @field_validator("api_prefix")
